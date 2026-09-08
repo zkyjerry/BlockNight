@@ -1,0 +1,2 @@
+PASS — 292 driven Play Mode frames: slow, full rewind, draft/card, pause/resume, fatal hit, death, retry, tutorial/skip, title.
+2026-09-08T16:30:17

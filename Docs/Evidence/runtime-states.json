@@ -1,0 +1,642 @@
+[
+  {
+    "phase": "Playing",
+    "world": {
+      "Time": 0.33333340287208557,
+      "SpawnClock": 1.4666669368743896,
+      "UpgradeClock": 26.683338165283203,
+      "DashLock": -0.33333340287208557,
+      "SlowLeft": 0.0,
+      "Grace": 0.3833334147930145,
+      "Player": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "Target": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "Dashing": false,
+      "Stepping": false,
+      "Score": 0,
+      "Kills": 0,
+      "Combo": 0,
+      "BestCombo": 0,
+      "NextId": 3,
+      "Random": 4189028111,
+      "Enemies": [
+        {
+          "Id": 1,
+          "Kind": 0,
+          "Position": {
+            "x": 0.0,
+            "y": 2.0
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.33333340287208557,
+          "Attack": 2.4000000953674316,
+          "Warning": 0.8166669607162476,
+          "Pending": false
+        },
+        {
+          "Id": 2,
+          "Kind": 0,
+          "Position": {
+            "x": 0.0,
+            "y": 3.4000000953674316
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.33333340287208557,
+          "Attack": 2.4000000953674316,
+          "Warning": 0.8166669607162476,
+          "Pending": false
+        }
+      ],
+      "Bullets": []
+    }
+  },
+  {
+    "phase": "Playing",
+    "world": {
+      "Time": 1.9166655540466309,
+      "SpawnClock": 2.289314031600952,
+      "UpgradeClock": 23.38336181640625,
+      "DashLock": -0.2866666913032532,
+      "SlowLeft": 0.0,
+      "Grace": 0.0,
+      "Player": {
+        "x": 0.0,
+        "y": 4.0
+      },
+      "Target": {
+        "x": 0.0,
+        "y": 4.0
+      },
+      "Dashing": false,
+      "Stepping": false,
+      "Score": 235,
+      "Kills": 2,
+      "Combo": 2,
+      "BestCombo": 2,
+      "NextId": 5,
+      "Random": 1690000812,
+      "Enemies": [
+        {
+          "Id": 3,
+          "Kind": 0,
+          "Position": {
+            "x": 2.0,
+            "y": 1.0
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.10000000149011612,
+          "Attack": 2.4000000953674316,
+          "Warning": 1.0500000715255737,
+          "Pending": false
+        },
+        {
+          "Id": 4,
+          "Kind": 0,
+          "Position": {
+            "x": 1.0,
+            "y": 1.0
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.10000000149011612,
+          "Attack": 2.4000000953674316,
+          "Warning": 1.0500000715255737,
+          "Pending": false
+        }
+      ],
+      "Bullets": []
+    }
+  },
+  {
+    "phase": "Playing",
+    "world": {
+      "Time": 0.6666666865348816,
+      "SpawnClock": 998.892578125,
+      "UpgradeClock": 26.333343505859375,
+      "DashLock": -0.4200001358985901,
+      "SlowLeft": 2.133333921432495,
+      "Grace": 9.333343505859375,
+      "Player": {
+        "x": 0.0,
+        "y": 4.0
+      },
+      "Target": {
+        "x": 0.0,
+        "y": 4.0
+      },
+      "Dashing": false,
+      "Stepping": false,
+      "Score": 0,
+      "Kills": 0,
+      "Combo": 3,
+      "BestCombo": 3,
+      "NextId": 9,
+      "Random": 17391,
+      "Enemies": [
+        {
+          "Id": 3,
+          "Kind": 0,
+          "Position": {
+            "x": 0.0,
+            "y": 1.0
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.0,
+          "Attack": 2.4000000953674316,
+          "Warning": 0.0,
+          "Pending": true
+        },
+        {
+          "Id": 4,
+          "Kind": 0,
+          "Position": {
+            "x": 0.0,
+            "y": 1.9978665113449097
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.005333333276212215,
+          "Attack": 2.3946666717529297,
+          "Warning": 0.0,
+          "Pending": true
+        },
+        {
+          "Id": 5,
+          "Kind": 0,
+          "Position": {
+            "x": 0.0,
+            "y": 2.9957330226898193
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.01066666655242443,
+          "Attack": 2.3893332481384277,
+          "Warning": 0.0,
+          "Pending": true
+        },
+        {
+          "Id": 6,
+          "Kind": 1,
+          "Position": {
+            "x": 3.0,
+            "y": 2.0
+          },
+          "Aim": {
+            "x": -0.8320503234863281,
+            "y": 0.5547001957893372
+          },
+          "Age": 0.1066666767001152,
+          "Attack": 2.2933316230773926,
+          "Warning": 0.0,
+          "Pending": false
+        },
+        {
+          "Id": 7,
+          "Kind": 3,
+          "Position": {
+            "x": -1.9896835088729858,
+            "y": -1.9711076021194458
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.1066666767001152,
+          "Attack": 2.2933316230773926,
+          "Warning": 0.0,
+          "Pending": false
+        },
+        {
+          "Id": 8,
+          "Kind": 2,
+          "Position": {
+            "x": -3.0,
+            "y": 2.0
+          },
+          "Aim": {
+            "x": 0.8320503234863281,
+            "y": 0.5547001957893372
+          },
+          "Age": 0.1066666767001152,
+          "Attack": 2.2933316230773926,
+          "Warning": 0.0,
+          "Pending": false
+        }
+      ],
+      "Bullets": []
+    }
+  },
+  {
+    "phase": "Playing",
+    "world": {
+      "Time": 2.999997854232788,
+      "SpawnClock": 998.348876953125,
+      "UpgradeClock": 21.450044631958008,
+      "DashLock": -2.753331422805786,
+      "SlowLeft": -0.016664719209074974,
+      "Grace": 7.000017166137695,
+      "Player": {
+        "x": 0.0,
+        "y": 4.0
+      },
+      "Target": {
+        "x": 0.0,
+        "y": 4.0
+      },
+      "Dashing": false,
+      "Stepping": false,
+      "Score": 510,
+      "Kills": 3,
+      "Combo": 3,
+      "BestCombo": 3,
+      "NextId": 9,
+      "Random": 17391,
+      "Enemies": [
+        {
+          "Id": 6,
+          "Kind": 1,
+          "Position": {
+            "x": 3.0,
+            "y": 2.0
+          },
+          "Aim": {
+            "x": -0.8320503234863281,
+            "y": 0.5547001957893372
+          },
+          "Age": 0.6479988694190979,
+          "Attack": 1.7519927024841309,
+          "Warning": 0.0,
+          "Pending": false
+        },
+        {
+          "Id": 7,
+          "Kind": 3,
+          "Position": {
+            "x": -1.9401299953460693,
+            "y": -1.8223954439163208
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.6479988694190979,
+          "Attack": 1.7519927024841309,
+          "Warning": 0.0,
+          "Pending": false
+        },
+        {
+          "Id": 8,
+          "Kind": 2,
+          "Position": {
+            "x": -3.0,
+            "y": 2.0
+          },
+          "Aim": {
+            "x": 0.8320503234863281,
+            "y": 0.5547001957893372
+          },
+          "Age": 0.6479988694190979,
+          "Attack": 1.7519927024841309,
+          "Warning": 0.0,
+          "Pending": false
+        }
+      ],
+      "Bullets": []
+    }
+  },
+  {
+    "phase": "Rewinding",
+    "world": {
+      "Time": 2.5499982833862305,
+      "SpawnClock": 998.589111328125,
+      "UpgradeClock": 24.45003890991211,
+      "DashLock": -2.3033318519592285,
+      "SlowLeft": 0.2500019371509552,
+      "Grace": 7.450023174285889,
+      "Player": {
+        "x": 0.0,
+        "y": 4.0
+      },
+      "Target": {
+        "x": 0.0,
+        "y": 4.0
+      },
+      "Dashing": false,
+      "Stepping": false,
+      "Score": 0,
+      "Kills": 0,
+      "Combo": 3,
+      "BestCombo": 3,
+      "NextId": 9,
+      "Random": 17391,
+      "Enemies": [
+        {
+          "Id": 3,
+          "Kind": 0,
+          "Position": {
+            "x": 0.0,
+            "y": 1.0
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.0,
+          "Attack": 2.4000000953674316,
+          "Warning": 0.0,
+          "Pending": true
+        },
+        {
+          "Id": 4,
+          "Kind": 0,
+          "Position": {
+            "x": 0.0,
+            "y": 1.9978665113449097
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.005333333276212215,
+          "Attack": 2.3946666717529297,
+          "Warning": 0.0,
+          "Pending": true
+        },
+        {
+          "Id": 5,
+          "Kind": 0,
+          "Position": {
+            "x": 0.0,
+            "y": 2.9957330226898193
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.01066666655242443,
+          "Attack": 2.3893332481384277,
+          "Warning": 0.0,
+          "Pending": true
+        },
+        {
+          "Id": 6,
+          "Kind": 1,
+          "Position": {
+            "x": 3.0,
+            "y": 2.0
+          },
+          "Aim": {
+            "x": -0.8320503234863281,
+            "y": 0.5547001957893372
+          },
+          "Age": 0.4079991579055786,
+          "Attack": 1.9919931888580322,
+          "Warning": 0.0,
+          "Pending": false
+        },
+        {
+          "Id": 7,
+          "Kind": 3,
+          "Position": {
+            "x": -1.9621376991271973,
+            "y": -1.8884414434432983
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.4079991579055786,
+          "Attack": 1.9919931888580322,
+          "Warning": 0.0,
+          "Pending": false
+        },
+        {
+          "Id": 8,
+          "Kind": 2,
+          "Position": {
+            "x": -3.0,
+            "y": 2.0
+          },
+          "Aim": {
+            "x": 0.8320503234863281,
+            "y": 0.5547001957893372
+          },
+          "Age": 0.4079991579055786,
+          "Attack": 1.9919931888580322,
+          "Warning": 0.0,
+          "Pending": false
+        }
+      ],
+      "Bullets": []
+    }
+  },
+  {
+    "phase": "Playing",
+    "world": {
+      "Time": 0.5666667819023132,
+      "SpawnClock": 1.2333338260650635,
+      "UpgradeClock": 26.43334197998047,
+      "DashLock": -0.5666667819023132,
+      "SlowLeft": 0.0,
+      "Grace": 0.08333326876163483,
+      "Player": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "Target": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "Dashing": false,
+      "Stepping": false,
+      "Score": 0,
+      "Kills": 0,
+      "Combo": 0,
+      "BestCombo": 0,
+      "NextId": 3,
+      "Random": 17391,
+      "Enemies": [
+        {
+          "Id": 1,
+          "Kind": 0,
+          "Position": {
+            "x": 0.0,
+            "y": 2.0
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.5666667819023132,
+          "Attack": 2.4000000953674316,
+          "Warning": 0.5833338499069214,
+          "Pending": false
+        },
+        {
+          "Id": 2,
+          "Kind": 0,
+          "Position": {
+            "x": 0.0,
+            "y": 3.4000000953674316
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.5666667819023132,
+          "Attack": 2.4000000953674316,
+          "Warning": 0.5833338499069214,
+          "Pending": false
+        }
+      ],
+      "Bullets": []
+    }
+  },
+  {
+    "phase": "Playing",
+    "world": {
+      "Time": 0.3500000834465027,
+      "SpawnClock": 1.450000286102295,
+      "UpgradeClock": 26.666671752929688,
+      "DashLock": -0.3500000834465027,
+      "SlowLeft": 0.0,
+      "Grace": 0.3666667342185974,
+      "Player": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "Target": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "Dashing": false,
+      "Stepping": false,
+      "Score": 0,
+      "Kills": 0,
+      "Combo": 0,
+      "BestCombo": 0,
+      "NextId": 3,
+      "Random": 4189028111,
+      "Enemies": [
+        {
+          "Id": 1,
+          "Kind": 0,
+          "Position": {
+            "x": 0.0,
+            "y": 2.0
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.3500000834465027,
+          "Attack": 2.4000000953674316,
+          "Warning": 0.8000003099441528,
+          "Pending": false
+        },
+        {
+          "Id": 2,
+          "Kind": 0,
+          "Position": {
+            "x": 0.0,
+            "y": 3.4000000953674316
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.3500000834465027,
+          "Attack": 2.4000000953674316,
+          "Warning": 0.8000003099441528,
+          "Pending": false
+        }
+      ],
+      "Bullets": []
+    }
+  },
+  {
+    "phase": "Playing",
+    "world": {
+      "Time": 0.03333333507180214,
+      "SpawnClock": 1.7666666507720947,
+      "UpgradeClock": 26.983333587646484,
+      "DashLock": -0.03333333507180214,
+      "SlowLeft": 0.0,
+      "Grace": 0.6833333373069763,
+      "Player": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "Target": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "Dashing": false,
+      "Stepping": false,
+      "Score": 0,
+      "Kills": 0,
+      "Combo": 0,
+      "BestCombo": 0,
+      "NextId": 3,
+      "Random": 4189028111,
+      "Enemies": [
+        {
+          "Id": 1,
+          "Kind": 0,
+          "Position": {
+            "x": 0.0,
+            "y": 2.0
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.03333333507180214,
+          "Attack": 2.4000000953674316,
+          "Warning": 1.1166666746139526,
+          "Pending": false
+        },
+        {
+          "Id": 2,
+          "Kind": 0,
+          "Position": {
+            "x": 0.0,
+            "y": 3.4000000953674316
+          },
+          "Aim": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "Age": 0.03333333507180214,
+          "Attack": 2.4000000953674316,
+          "Warning": 1.1166666746139526,
+          "Pending": false
+        }
+      ],
+      "Bullets": []
+    }
+  }
+]

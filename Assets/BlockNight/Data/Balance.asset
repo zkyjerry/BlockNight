@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcf635282295f48aca2b68ff30050b39, type: 3}
+  m_Name: Balance
+  m_EditorClassIdentifier: 
+  boardHalf: 5
+  playerSpeed: 13
+  slowRate: 0.18
+  slowSeconds: 2.6
+  slowCooldown: 11
+  rewindSeconds: 3
+  rewindCooldown: 16
+  upgradeSeconds: 30
+  killSeconds: 1.2
+  spawnWarning: 1.2

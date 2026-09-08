@@ -1,0 +1,196 @@
+[
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/Resolution 1600"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 41,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/Resolution 1600\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/Capture"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/Capture\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "input_keyboard",
+    {
+      "action": "release",
+      "key": "enter"
+    },
+    "{\n  \"action\": \"release\",\n  \"key\": \"enter\",\n  \"message\": \"Key enter released\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "input_keyboard",
+    {
+      "action": "press",
+      "key": "enter",
+      "holdSeconds": 0.25
+    },
+    "{\n  \"action\": \"press\",\n  \"key\": \"enter\",\n  \"message\": \"Key enter pressed\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "input_keyboard",
+    {
+      "action": "release",
+      "key": "w"
+    },
+    "{\n  \"action\": \"release\",\n  \"key\": \"W\",\n  \"message\": \"Key W released\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "input_keyboard",
+    {
+      "action": "press",
+      "key": "w",
+      "holdSeconds": 0.25
+    },
+    "{\n  \"action\": \"press\",\n  \"key\": \"W\",\n  \"message\": \"Key W pressed\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/State"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/State\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/Capture"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/Capture\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/Slow Showcase"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/Slow Showcase\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/State"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/State\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/Capture"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/Capture\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/State"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/State\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/Capture"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/Capture\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "input_keyboard",
+    {
+      "action": "release",
+      "key": "q"
+    },
+    "{\n  \"action\": \"release\",\n  \"key\": \"Q\",\n  \"message\": \"Key Q released\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "input_keyboard",
+    {
+      "action": "press",
+      "key": "q",
+      "holdSeconds": 0.25
+    },
+    "{\n  \"action\": \"press\",\n  \"key\": \"Q\",\n  \"message\": \"Key Q pressed\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/State"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/State\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/Capture"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/Capture\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/State"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/State\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/Draft"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/Draft\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/Capture"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/Capture\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "input_keyboard",
+    {
+      "action": "release",
+      "key": "digit1"
+    },
+    "{\n  \"action\": \"release\",\n  \"key\": \"digit1\",\n  \"message\": \"Key digit1 released\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "input_keyboard",
+    {
+      "action": "press",
+      "key": "digit1",
+      "holdSeconds": 0.25
+    },
+    "{\n  \"action\": \"press\",\n  \"key\": \"digit1\",\n  \"message\": \"Key digit1 pressed\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/State"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/State\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/Resolution 1280"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 2,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/Resolution 1280\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/Draft"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/Draft\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ],
+  [
+    "execute_menu_item",
+    {
+      "menuPath": "Block Night/QA/Capture"
+    },
+    "{\n  \"executed\": true,\n  \"executionTime\": 0,\n  \"menuExists\": true,\n  \"menuPath\": \"Block Night/QA/Capture\",\n  \"message\": \"Menu item executed successfully\",\n  \"success\": true\n}\n"
+  ]
+]

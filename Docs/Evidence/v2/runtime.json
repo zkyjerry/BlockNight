@@ -1,0 +1,150 @@
+[
+  {
+    "name": "01-walk",
+    "state": {
+      "Phase": "Playing",
+      "TutorialStage": 0,
+      "Level": 1,
+      "TutorialActive": true,
+      "Ranks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "SlowCooldown": 0.0,
+      "RewindCooldown": 0.0,
+      "World": {
+        "Time": 0.4666668474674225,
+        "SpawnClock": 998.533447265625,
+        "UpgradeClock": 998.533447265625,
+        "DashLock": -0.4666668474674225,
+        "SlowLeft": 0.0,
+        "Grace": 998.533447265625,
+        "Player": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "Target": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "Facing": {
+          "x": 0.0,
+          "y": 1.0
+        },
+        "Travel": 0.0,
+        "Dashing": false,
+        "Stepping": false,
+        "Score": 0,
+        "Kills": 0,
+        "Combo": 0,
+        "BestCombo": 0,
+        "NextId": 3,
+        "Random": 17391,
+        "Enemies": [],
+        "Bullets": []
+      },
+      "Volumes": [
+        0.0,
+        0.699999988079071,
+        0.06476510316133499,
+        0.0,
+        0.030168019235134125,
+        0.3387712836265564
+      ],
+      "Pitches": [
+        1.0,
+        1.0,
+        1.0001389980316162,
+        1.0001389980316162,
+        1.0001389980316162,
+        1.0001389980316162
+      ],
+      "LowPass": [
+        12000.0,
+        12000.0,
+        12000.0,
+        12000.0
+      ]
+    }
+  },
+  {
+    "name": "02-dash",
+    "state": {
+      "Phase": "Playing",
+      "TutorialStage": 0,
+      "Level": 1,
+      "TutorialActive": true,
+      "Ranks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "SlowCooldown": 0.0,
+      "RewindCooldown": 0.0,
+      "World": {
+        "Time": 2.399998426437378,
+        "SpawnClock": 996.6005859375,
+        "UpgradeClock": 996.6005859375,
+        "DashLock": -2.399998426437378,
+        "SlowLeft": 0.0,
+        "Grace": 996.6005859375,
+        "Player": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "Target": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "Facing": {
+          "x": 0.0,
+          "y": 1.0
+        },
+        "Travel": 0.0,
+        "Dashing": false,
+        "Stepping": false,
+        "Score": 0,
+        "Kills": 0,
+        "Combo": 0,
+        "BestCombo": 0,
+        "NextId": 3,
+        "Random": 17391,
+        "Enemies": [],
+        "Bullets": []
+      },
+      "Volumes": [
+        0.0,
+        0.699999988079071,
+        0.06499996036291122,
+        0.0,
+        0.031758226454257965,
+        0.33999985456466675
+      ],
+      "Pitches": [
+        1.0,
+        1.0,
+        1.0009114742279053,
+        1.0009114742279053,
+        1.0009114742279053,
+        1.0009114742279053
+      ],
+      "LowPass": [
+        12000.0,
+        12000.0,
+        12000.0,
+        12000.0
+      ]
+    }
+  }
+]

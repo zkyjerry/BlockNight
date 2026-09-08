@@ -1,0 +1,21 @@
+2026-09-08T10:25:54.0707740+08:00
+PASS | Dash reaches boundary and kills every intersected enemy
+PASS | WASD step moves exactly one cell, does not attack and reaches interior
+PASS | Slow preserves player speed and holds rewards until release
+PASS | Slow holds enemy grid rhythm while player stays fast
+PASS | Single attack is lethal; rewind can recover after death
+PASS | Rewind restores reward, enemy, projectile and random state
+PASS | Draft pauses time; options distinct; choosing commits history
+PASS | Pause freezes cooldowns and simulation
+PASS | Swept projectile collision catches dash crossing
+PASS | Telegraph gives safe spawn window
+PASS | Five minute run reaches victory with bounded state
+PASS | Aftershock kills nearby threats and splitter warns children
+PASS | Cut on the slow expiration frame cannot remain suspended forever
+PASS | Cooldowns reject repeat skills and rewind cannot rewind its cost
+PASS | Maxed upgrades produce safe overflow choices
+PASS | Restart clears abilities, upgrades, rewards and old history
+PASS | Snapshots are deep copies
+PASS | All player and enemy positions stay on grid during combat
+PASS | Hunter moves only one cardinal cell per rhythm
+RESULT: 19/19 passed
