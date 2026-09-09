@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcf635282295f48aca2b68ff30050b39, type: 3}
   m_Name: Balance
   m_EditorClassIdentifier: 
-  boardHalf: 5
+  boardHalf: 3.5
   playerSpeed: 13
+  walkSpeed: 7
   slowRate: 0.18
   slowSeconds: 2.6
   slowCooldown: 11

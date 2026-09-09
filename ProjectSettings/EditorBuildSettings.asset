@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/BlockNight/Scenes/MainMenu.unity
+    guid: a29bfb9df840e4a54b20b7687a644fab
+  - enabled: 1
     path: Assets/BlockNight/Scenes/BlockNight.unity
     guid: d66aff7761e6f48f58b34ef3e32ab07c
+  - enabled: 1
+    path: Assets/BlockNight/Scenes/GameOver.unity
+    guid: 01580d737944745bcbcff1579f328c9f
   m_configObjects: {}

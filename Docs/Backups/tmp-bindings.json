@@ -1,0 +1,82 @@
+{
+    "items": [
+        {
+            "scene": "BlockNight",
+            "owner": "HUD — editable canvas",
+            "property": "countdown",
+            "target": "HUD — editable canvas/Combat readouts/Countdown"
+        },
+        {
+            "scene": "BlockNight",
+            "owner": "HUD — editable canvas",
+            "property": "score",
+            "target": "HUD — editable canvas/Combat readouts/Score"
+        },
+        {
+            "scene": "BlockNight",
+            "owner": "HUD — editable canvas",
+            "property": "time",
+            "target": "HUD — editable canvas/Combat readouts/Time"
+        },
+        {
+            "scene": "BlockNight",
+            "owner": "HUD — editable canvas",
+            "property": "chain",
+            "target": "HUD — editable canvas/Combat readouts/Chain"
+        },
+        {
+            "scene": "BlockNight",
+            "owner": "HUD — editable canvas",
+            "property": "slowLabel",
+            "target": "HUD — editable canvas/Combat readouts/Slow CD"
+        },
+        {
+            "scene": "BlockNight",
+            "owner": "HUD — editable canvas",
+            "property": "rewindLabel",
+            "target": "HUD — editable canvas/Combat readouts/Rewind CD"
+        },
+        {
+            "scene": "BlockNight",
+            "owner": "HUD — editable canvas",
+            "property": "status",
+            "target": "HUD — editable canvas/Combat readouts/Status"
+        },
+        {
+            "scene": "BlockNight",
+            "owner": "HUD — editable canvas",
+            "property": "banner",
+            "target": "HUD — editable canvas/Combat readouts/Combo banner"
+        },
+        {
+            "scene": "BlockNight",
+            "owner": "HUD — editable canvas",
+            "property": "tutorialText",
+            "target": "HUD — editable canvas/Tutorial/Lesson"
+        },
+        {
+            "scene": "BlockNight",
+            "owner": "HUD — editable canvas",
+            "property": "cardTexts.Array.data[0]",
+            "target": "HUD — editable canvas/Augment selection//Label"
+        },
+        {
+            "scene": "BlockNight",
+            "owner": "HUD — editable canvas",
+            "property": "cardTexts.Array.data[1]",
+            "target": "HUD — editable canvas/Augment selection//Label"
+        },
+        {
+            "scene": "BlockNight",
+            "owner": "HUD — editable canvas",
+            "property": "cardTexts.Array.data[2]",
+            "target": "HUD — editable canvas/Augment selection//Label"
+        },
+        {
+            "scene": "GameOver",
+            "owner": "HUD — editable canvas",
+            "property": "resultText",
+            "target": "HUD — editable canvas/Run ended/Run stats"
+        }
+    ]
+}

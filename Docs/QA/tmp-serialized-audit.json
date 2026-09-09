@@ -1,0 +1,23 @@
+{
+  "BlockNight": {
+    "rectTransformsBefore": 42,
+    "rectTransformsAfter": 42,
+    "changed": [],
+    "TMP": 28,
+    "correctFont": 28
+  },
+  "MainMenu": {
+    "rectTransformsBefore": 7,
+    "rectTransformsAfter": 7,
+    "changed": [],
+    "TMP": 3,
+    "correctFont": 3
+  },
+  "GameOver": {
+    "rectTransformsBefore": 8,
+    "rectTransformsAfter": 8,
+    "changed": [],
+    "TMP": 4,
+    "correctFont": 4
+  }
+}

@@ -1,2 +1,2 @@
-PASS — 292 driven Play Mode frames: slow, full rewind, draft/card, pause/resume, fatal hit, death, retry, tutorial/skip, title.
-2026-09-08T16:30:17
+GRID V3 PASS — all TMP font references, independent card bindings, runtime flow, seven-step tutorial, dash steering and rewind lock, 64 scene tiles, camera tween/movement/reset, unchanged board/UI transforms, 280 particles and HDR bright vignette.
+2026-09-09T10:35:08

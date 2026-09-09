@@ -1,0 +1,5 @@
+MainMenu: TMP=3, Text=0, geometry changes=0
+BlockNight: TMP=28, Text=0, geometry changes=0
+GameOver: TMP=4, Text=0, geometry changes=0
+Converted=0, rebound=13
+Font=Assets/BlockNight/Fonts/FZXS12 TMP.asset
