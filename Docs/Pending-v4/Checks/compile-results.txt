@@ -1,0 +1,4 @@
+OFFLINE COMPILE PASS
+Runtime: csc against installed Unity 2022.3 engine assemblies, TMP, InputSystem, URP, Cinemachine, DOTween and Febucci.TextAnimator.Runtime.
+Editor: csc against the same references + UnityEditor + the freshly compiled runtime DLL.
+No Unity Editor compilation or scene migration has been run for v4.

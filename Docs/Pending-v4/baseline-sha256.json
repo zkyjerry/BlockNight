@@ -1,0 +1,10 @@
+{
+  "Assets/BlockNight/Editor/AcceptanceChecks.cs": "d4cfcc0e7c5e9bd54cfdd00178828eab829353965c03f20b2d5903ccc46e52b8",
+  "Assets/BlockNight/Editor/SceneMigrationV3.cs": "87737588d369125c6e2106e9e7e63a2fb05a8ae4b30aeac8f7ae8786c9b2d694",
+  "Assets/BlockNight/Scripts/ArenaPresentation.cs": "bf26d413882b0a1d9bb3f16805d2cf9309e4744509ebe49d3852e14b7299428e",
+  "Assets/BlockNight/Scripts/CombatModel.cs": "e816b813e02065a91540ae0be8b6e9a7fbadda221c4d6b503aa25096de18bb8d",
+  "Assets/BlockNight/Scripts/GameDirector.cs": "4595ce8fa4bb7a6fd57487f4bab03e1580b8870fd7442426dc0bd7700778a969",
+  "Assets/BlockNight/Scripts/GameHUD.cs": "5acaf5b99f14b9a08574d8cda933e47639548a1081d91187c703c89f48726415",
+  "Assets/BlockNight/Scripts/MenuController.cs": "dd7b71b41c9ed6eaff8c9a2706a53df51d3cff8cbf0c0d5a97dc8cb4560d237c",
+  "Assets/BlockNight/Scripts/SpawnSchedule.cs": "15edbcb6967a42729d29bd7a1e480ff7fa8516180815e43d13f4833c2d041432"
+}

@@ -20,6 +20,7 @@ namespace BlockNight
         public Light2D playerLight;
         public Transform shakeCamera;
         public SpriteRenderer facingMarker;
+        public LineRenderer shieldArc;
         public SpriteRenderer[] shockwaves;
         public float cellSize = 1.375f;
 
@@ -62,6 +63,7 @@ namespace BlockNight
             player.DOKill(); player.localScale = playerScale;
             foreach (var ring in shockwaves) { ring.DOKill(); ring.transform.DOKill(); ring.enabled = false; }
             kick = feedbackTime = 0; feedbackChain = 0;
+            if(shieldArc)shieldArc.enabled=false;
         }
 
         public void DashStart()
@@ -105,6 +107,12 @@ namespace BlockNight
             player.DOPunchScale(playerScale * (.45f + tier * .15f), .13f, 1);
         }
 
+        public void ShieldBreak(Vector2 p)
+        {
+            Initialize();shards.Play();
+            for(int i=0;i<40;i++){Vector2 v=Random.insideUnitCircle*4;shards.Emit(new ParticleSystem.EmitParams{position=World(p,-.3f),velocity=v,startSize=.08f,startLifetime=.3f,startColor=new Color(.5f,1,1)*2},1);}
+        }
+
         public void Render(CombatModel m)
         {
             Initialize();
@@ -125,31 +133,29 @@ namespace BlockNight
                 bodies[i].sprite = shapes[f.type];
                 bodies[i].transform.localScale = Vector3.one * (f.type == 3 ? .49f : .56f);
                 bodies[i].transform.rotation = Quaternion.Euler(0, 0, f.pending ? 35 : 0);
-                Color c = colors[f.type]; bool forming = f.age < m.settings.spawnWarning;
+                Color c = colors[f.type]; bool forming = f.age < m.RulesFor(f.type).spawnWarning;
                 bodies[i].color = f.pending ? new Color(.65f, .9f, 1, .5f) : forming ? new Color(c.r, c.g, c.b, .18f) : c * 1.7f;
-                warnings[i].transform.position = World(f.pos, 0);
-                float size = forming ? Mathf.Lerp(1.2f, .7f, f.age / m.settings.spawnWarning) : f.timer < .7f ? Mathf.Lerp(1.3f, .8f, f.timer / .7f) : .74f;
-                warnings[i].transform.localScale = Vector3.one * size;
-                warnings[i].color = new Color(c.r, c.g, c.b, forming ? .75f : f.timer < .7f ? .9f : .18f);
-                if (!forming && !f.pending && f.timer < .7f)
-                {
-                    var l = aims[i]; l.enabled = true; l.startColor = l.endColor = new Color(c.r, c.g, c.b, .6f);
-                    Vector3 p = World(f.pos, -.05f);
-                    var rays = CombatModel.AttackDirections(f.type, f.volley);
-                    l.positionCount = 1 + rays.Length * 2;
-                    l.SetPosition(0, p);
-                    for (int ray = 0; ray < rays.Length; ray++)
-                    {
-                        l.SetPosition(1 + ray * 2, p + (Vector3)rays[ray] * 2.3f);
-                        l.SetPosition(2 + ray * 2, p);
-                    }
+                var rules=m.RulesFor(f.type);
+                bool committed=f.attackWindup||f.moveWindup;
+                Vector2Int target=f.attackWindup?f.attackTarget:f.moveTarget;
+                bool targetValid=committed&&CombatModel.InBounds(target);
+                warnings[i].sprite=shapes[0];
+                warnings[i].transform.position=World(targetValid?CombatModel.Center(target):f.pos,0);
+                warnings[i].transform.localScale=Vector3.one*(forming?1.15f:targetValid?cellSize*.88f:.7f);
+                warnings[i].color=new Color(c.r,c.g,c.b,forming?.45f:targetValid?.25f:.08f);
+                if(!forming&&!f.pending&&targetValid){
+                    var l=aims[i];l.enabled=true;l.startColor=l.endColor=new Color(c.r,c.g,c.b,.9f);
+                    Vector3 p=World(CombatModel.Center(target),-.05f);float half=cellSize*.45f;
+                    l.positionCount=5;l.SetPosition(0,p+new Vector3(-half,-half));l.SetPosition(1,p+new Vector3(-half,half));l.SetPosition(2,p+new Vector3(half,half));l.SetPosition(3,p+new Vector3(half,-half));l.SetPosition(4,p+new Vector3(-half,-half));
                 }
             }
             for (int i = 0; i < bullets.Length; i++)
             {
                 var s = m.shots[i]; bullets[i].enabled = s.active;
-                if (s.active) { bullets[i].transform.position = World(s.pos, -.2f); bullets[i].color = new Color(1, .44f, .28f) * 2; }
+                if(s.active){bullets[i].transform.position=World(CombatModel.Center(s.cell),-.15f);bullets[i].sprite=shapes[0];bullets[i].transform.localScale=Vector3.one*cellSize*(s.damaging?.88f:.7f);bullets[i].color=s.damaging?new Color(1,.48f,.12f,.75f)*1.7f:new Color(1,.55f,.15f,.22f);}
+
             }
+            if(shieldArc){shieldArc.enabled=m.dashing&&m.shieldArmed;if(shieldArc.enabled){shieldArc.positionCount=21;float forward=Mathf.Atan2(m.direction.y,m.direction.x);for(int j=0;j<21;j++){float angle=forward+Mathf.Lerp(-Mathf.PI/3,Mathf.PI/3,j/20f);shieldArc.SetPosition(j,World(m.player+new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*.6f,-.35f));}}}
         }
 
         public void TimeEffect(bool slow, bool rewind, bool death, float dt)

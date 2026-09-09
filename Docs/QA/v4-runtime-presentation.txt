@@ -1,0 +1,2 @@
+PASS: 4 serialized enemy SOs; target-tile warning; square grid wave warning/impact; 21-point front shield; one-hit break particles; shield card text fits.
+2026-09-09T15:37:55

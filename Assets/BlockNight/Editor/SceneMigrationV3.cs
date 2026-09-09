@@ -51,13 +51,13 @@ namespace BlockNight.Editor
                 schedule = ScriptableObject.CreateInstance<SpawnSchedule>();
                 schedule.phases = new[]
                 {
-                    Phase("入阵",25,2,3,EnemyKind.双斜射手),
-                    Phase("交锋",35,3,3,EnemyKind.双斜射手,EnemyKind.四斜棱镜),
-                    Phase("游猎",40,3,2.7f,EnemyKind.四斜棱镜,EnemyKind.跃格猎手),
-                    Phase("脉冲",45,4,2.4f,EnemyKind.双斜射手,EnemyKind.四斜棱镜,EnemyKind.跃格猎手,EnemyKind.交替脉冲),
-                    Phase("压力",35,5,2.2f,EnemyKind.双斜射手,EnemyKind.四斜棱镜,EnemyKind.跃格猎手,EnemyKind.交替脉冲),
-                    Phase("喘息",8,0,2,EnemyKind.双斜射手),
-                    Phase("极限",60,5,1.8f,EnemyKind.双斜射手,EnemyKind.四斜棱镜,EnemyKind.跃格猎手,EnemyKind.交替脉冲)
+                    Phase("入阵",25,2,3,EnemyKind.突进方卫),
+                    Phase("交锋",35,3,3,EnemyKind.突进方卫,EnemyKind.斜波棱镜),
+                    Phase("游猎",40,3,2.7f,EnemyKind.斜波棱镜,EnemyKind.巡格猎手),
+                    Phase("脉冲",45,4,2.4f,EnemyKind.突进方卫,EnemyKind.斜波棱镜,EnemyKind.巡格猎手,EnemyKind.逆波脉冲),
+                    Phase("压力",35,5,2.2f,EnemyKind.突进方卫,EnemyKind.斜波棱镜,EnemyKind.巡格猎手,EnemyKind.逆波脉冲),
+                    Phase("喘息",8,0,2,EnemyKind.突进方卫),
+                    Phase("极限",60,5,1.8f,EnemyKind.突进方卫,EnemyKind.斜波棱镜,EnemyKind.巡格猎手,EnemyKind.逆波脉冲)
                 };
                 AssetDatabase.CreateAsset(schedule, "Assets/BlockNight/Data/SpawnSchedule.asset");
             }

@@ -1,0 +1,2 @@
+4 enemy definition SO assets; existing grid impact pool reused; 1 serialized shield arc; 7 TMP labels equipped with TextAnimator; menu text layouts unchanged.
+2026-09-09T15:31:57

@@ -30,7 +30,7 @@ public static class RuntimeChecks {
  DG.Tweening.DOTween.Complete(game.arena.shakeCamera);Assert(Vector3.Distance(cameraRest,game.arena.shakeCamera.localPosition)<.0001f,"shake resets without drift");
  game.arena.ClearEffects();game.arena.Kill(game.model.player,7,false);for(int i=0;i<4;i++)game.arena.TimeEffect(false,false,false,.03f);
  game.arena.volume.profile.TryGet<UnityEngine.Rendering.Universal.Vignette>(out var vignette);Assert(vignette.color.value.g>1&&vignette.intensity.value>.45f,"bright HDR vignette");Assert(game.arena.shards.particleCount>=280,"strong tier particle count");
- game.Home();Assert(game.mode==Mode.Title,"home");Finish("GRID V3 PASS — all TMP font references, independent card bindings, runtime flow, seven-step tutorial, dash steering and rewind lock, 64 scene tiles, camera tween/movement/reset, unchanged board/UI transforms, 280 particles and HDR bright vignette.");
+ game.Home();Assert(game.mode==Mode.Title,"home");Finish("GRID V4 PASS — all TMP font references, independent card bindings, runtime flow, seven-step tutorial, dash steering and rewind lock, 64 scene tiles, camera tween/movement/reset, unchanged board/UI transforms, 280 particles and HDR bright vignette.");
  }catch(Exception e){Finish("FAIL — "+e.Message);Debug.LogException(e);}finally{game.routeScenes=true;game.enabled=true;}}
  static void Finish(string report){Directory.CreateDirectory("Docs/QA");File.WriteAllText("Docs/QA/runtime-checks.txt",report+"\n"+DateTime.Now.ToString("s"));Debug.Log("BLOCK NIGHT RUNTIME: "+report);}
  [MenuItem("Block Night/QA/Force Game Over")]

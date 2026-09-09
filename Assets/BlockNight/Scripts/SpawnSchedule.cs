@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace BlockNight
 {
-    public enum EnemyKind { 双斜射手 = 0, 四斜棱镜 = 1, 跃格猎手 = 2, 交替脉冲 = 3 }
+    public enum EnemyKind { 突进方卫 = 0, 斜波棱镜 = 1, 巡格猎手 = 2, 逆波脉冲 = 3 }
 
     [Serializable]
     public class SpawnPhase
@@ -16,7 +16,7 @@ namespace BlockNight
         [Min(.2f), Tooltip("两批刷新之间的世界时间（秒）。")]
         public float spawnInterval = 3;
         [Tooltip("从列表中随机选种类；重复条目可增加该种类权重。")]
-        public EnemyKind[] enemyTypes = { EnemyKind.双斜射手 };
+        public EnemyKind[] enemyTypes = { EnemyKind.突进方卫 };
     }
 
     [CreateAssetMenu(menuName = "Block Night/阶段刷新配置", fileName = "SpawnSchedule")]

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e24720d00714946fab7b0ca5c676bf44, type: 3}
+  m_Name: "\u9006\u6CE2\u8109\u51B2"
+  m_EditorClassIdentifier: 
+  displayName: "\u9006\u6CE2\u8109\u51B2"
+  rules:
+    action: 1
+    direction: {x: -1, y: 1}
+    spawnWarning: 1.2
+    attackInterval: 3.2
+    attackWarning: 0.65
+    moveInterval: 4
+    moveWarning: 0.6
+    waveRange: 5
+    waveCellWarning: 0.28
+    impactDuration: 0.16
+    reverseAtEdge: 1

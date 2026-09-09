@@ -1,0 +1,2 @@
+PASS: 3 TMP labels, user font, real animated title vertices, completed reveal, unchanged text rectangle, enabled buttons.
+2026-09-09T15:37:12

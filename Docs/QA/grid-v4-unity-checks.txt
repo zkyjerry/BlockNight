@@ -1,0 +1,1 @@
+GRID V4 MODEL PASS: 422324 assertions, 10,000 simulated frames. SO timing, ram, diagonal tile wave, shield arcs/one-hit/cooldown/rewind, grid occupancy and upgrades.

@@ -9,6 +9,7 @@ namespace BlockNight
     {
         public Balance balance;
         public SpawnSchedule spawnSchedule;
+        public EnemyDefinition[] enemyDefinitions;
         [HideInInspector] public bool routeScenes = true;
         bool started;
         public ArenaPresentation arena;
@@ -36,7 +37,7 @@ namespace BlockNight
 
         void NewModel()
         {
-            model = new CombatModel(balance, spawnSchedule);
+            model = new CombatModel(balance, spawnSchedule, enemyDefinitions);
             model.rng = (uint)System.Environment.TickCount | 1u;
             model.Killed += (p, n, deferred) =>
             {
@@ -44,6 +45,7 @@ namespace BlockNight
                 if (!deferred) audioBus.Cue(2, n);
                 hud.RewardPunch();
             };
+            model.ShieldBlocked += p => { arena.ShieldBreak(p);audioBus.Cue(3);hud.Banner("盾弧破碎 / 8 秒重充"); };
             model.ChainEnded += n => { hud.Banner("连斩 " + n.ToString("00") + " / " + ArenaPresentation.TierName(n)); audioBus.Cue(3, n); };
             history.Clear(); sample = 0;
         }
@@ -98,7 +100,7 @@ namespace BlockNight
             {
                 PlacePlayer(new Vector2Int(3, 0));
                 for (int j = 2; j <= 6; j++) model.Spawn(0, CombatModel.Center(new Vector2Int(3, j)));
-                for (int j = 0; j < model.foes.Length; j++) if (model.foes[j].active) model.foes[j].age = balance.spawnWarning;
+                for (int j = 0; j < model.foes.Length; j++) if (model.foes[j].active) model.foes[j].age = model.RulesFor(model.foes[j].type).spawnWarning;
                 tutorialStep = 4; StartSlash();
             }
             return true;

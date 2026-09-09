@@ -9,6 +9,8 @@ namespace BlockNight
     {
         public bool active, pending;
         public int type, killChain, volley;
+        public bool attackWindup, moveWindup;
+        public Vector2Int heading, attackTarget, moveTarget;
         public Vector2 pos, aim;
         public float age, timer, hopTimer;
     }
@@ -19,6 +21,10 @@ namespace BlockNight
         public bool active;
         public Vector2 pos, vel;
         public float life;
+        public Vector2Int cell, sourceCell, heading;
+        public bool damaging;
+        public int remaining;
+        public float timer, warning, impactDuration;
     }
 
     [Serializable]
@@ -26,7 +32,7 @@ namespace BlockNight
     {
         public Vector2 player, direction, queuedDirection;
         public Vector2Int cell, target;
-        public bool moving, dashing;
+        public bool moving, dashing, shieldArmed;
         public float travel;
         public Foe[] foes;
         public Shot[] shots;
@@ -54,14 +60,28 @@ namespace BlockNight
         public int score, kills, chain, bestChain;
         public uint rng = 7193;
         public bool hit, draft, tutorial;
-        public int[] levels = new int[9];
+        public int[] levels = new int[10];
+        public bool shieldArmed;
+        public float shieldCD;
+        public EnemyDefinition[] enemyDefinitions;
+        public event Action<Vector2> ShieldBlocked;
+        bool dashDuringStep, shieldAtStepStart;
+        readonly List<Vector2> movementPath = new List<Vector2>();
+        static readonly EnemyRules[] Defaults = {
+            new EnemyRules {direction=Vector2Int.right},
+            new EnemyRules {action=EnemyAction.斜向冲击波,direction=new Vector2Int(1,1),attackInterval=2.8f},
+            new EnemyRules {direction=Vector2Int.up,attackInterval=2,attackWarning=.55f},
+            new EnemyRules {action=EnemyAction.斜向冲击波,direction=new Vector2Int(-1,1),attackInterval=3.2f,moveInterval=4,waveRange=5}
+        };
+        public EnemyRules RulesFor(int type) => enemyDefinitions!=null && type>=0 && type<enemyDefinitions.Length && enemyDefinitions[type] ? enemyDefinitions[type].rules : Defaults[Mathf.Clamp(type,0,Defaults.Length-1)];
+        public static int MaxLevel(int id) => id==9?1:3;
         public Balance settings;
         public event Action<Vector2, int, bool> Killed;
         public event Action<int> ChainEnded;
 
-        public CombatModel(Balance config, SpawnSchedule spawnSchedule = null)
+        public CombatModel(Balance config, SpawnSchedule spawnSchedule = null, EnemyDefinition[] definitions = null)
         {
-            settings = config; schedule = spawnSchedule;
+            settings = config; schedule = spawnSchedule; enemyDefinitions = definitions;
             reward = config.upgradeSeconds;
             player = Center(cell);
             target = cell;
@@ -114,7 +134,7 @@ namespace BlockNight
             if (moving || hit || draft || !InBounds(cell + Cardinal(direction))) return false;
             chain = 0; queuedDirection = Vector2.zero;
             target = cell + Cardinal(direction);
-            moving = dashing = true;
+            moving = dashing = true; shieldArmed = levels[9]>0 && shieldCD<=0;
             travel = 0;
             return true;
         }
@@ -146,20 +166,83 @@ namespace BlockNight
             for (int i = 0; i < foes.Length; i++)
                 if (!foes[i].active)
                 {
-                    foes[i] = new Foe { active = true, type = type, pos = Center(c), timer = 2.4f, aim = Vector2.down, hopTimer = 1.3f };
+                    var rules=RulesFor(type);
+                    foes[i] = new Foe { active = true, type = type, pos = Center(c), timer = Mathf.Max(rules.attackWarning+.1f,rules.attackInterval), heading=rules.Heading, hopTimer = Mathf.Max(rules.moveWarning+.1f,rules.moveInterval) };
                     return true;
                 }
             return false;
         }
 
-        void Fire(Vector2 p, Vector2 d)
+        void GridImpact(Vector2Int source, Vector2Int heading, int range, EnemyRules rules)
         {
-            for (int i = 0; i < shots.Length; i++)
-                if (!shots[i].active)
-                {
-                    shots[i] = new Shot { active = true, pos = p, vel = d * Mathf.Min(3.5f, 1.6f + elapsed / 140), life = 8 };
-                    return;
+            var targetCell=source+heading;if(!InBounds(targetCell))return;
+            for(int i=0;i<shots.Length;i++)if(!shots[i].active){shots[i]=new Shot{active=true,cell=targetCell,sourceCell=source,heading=heading,remaining=range,damaging=true,timer=rules.impactDuration,warning=rules.waveCellWarning,impactDuration=rules.impactDuration,pos=Center(targetCell)};return;}
+        }
+
+        Vector2Int PlanTarget(ref Foe f, EnemyRules rules)
+        {
+            var c=CellAt(f.pos);var targetCell=c+f.heading;
+            if(!InBounds(targetCell)&&rules.reverseAtEdge){f.heading=-f.heading;targetCell=c+f.heading;}
+            return targetCell;
+        }
+
+        void StepEnemy(int index,float dt)
+        {
+            var f=foes[index];var rules=RulesFor(f.type);
+            if(!f.active||f.pending||f.age<rules.spawnWarning||tutorial)return;
+            if(!f.moveWindup)f.timer-=dt;
+            if(!f.moveWindup&&!f.attackWindup&&f.timer<=rules.attackWarning){f.attackWindup=true;f.timer=Mathf.Max(f.timer,rules.attackWarning);f.attackTarget=PlanTarget(ref f,rules);}
+            if(f.attackWindup&&f.timer<=0){
+                var c=CellAt(f.pos);var attackHeading=f.attackTarget-c;
+                if(InBounds(f.attackTarget)&&attackHeading!=Vector2Int.zero){
+                    if(rules.action==EnemyAction.逐格撞击){if(!Occupied(f.attackTarget,index)){GridImpact(c,attackHeading,1,rules);f.pos=Center(f.attackTarget);}}
+                    else GridImpact(c,attackHeading,Mathf.Clamp(rules.waveRange,1,8),rules);
                 }
+                f.attackWindup=false;f.timer=Mathf.Max(rules.attackWarning+.1f,rules.attackInterval);f.volley++;
+            }
+            if(rules.action==EnemyAction.斜向冲击波){
+                // Movement waits while the wave attack is committed, so its warning never moves.
+                if(!f.attackWindup){
+                    f.hopTimer-=dt;
+                    if(!f.moveWindup&&f.hopTimer<=rules.moveWarning){f.moveWindup=true;f.hopTimer=Mathf.Max(f.hopTimer,rules.moveWarning);f.moveTarget=PlanTarget(ref f,rules);}
+                    if(f.moveWindup&&f.hopTimer<=0){var c=CellAt(f.pos);if(InBounds(f.moveTarget)&&!Occupied(f.moveTarget,index)){GridImpact(c,f.moveTarget-c,1,rules);f.pos=Center(f.moveTarget);}f.moveWindup=false;f.hopTimer=Mathf.Max(rules.moveWarning+.1f,rules.moveInterval);}
+                }
+            }
+            foes[index]=f;
+        }
+
+        static bool CrossesTile(Vector2 from,Vector2 to,Vector2 center)
+        {
+            float lo=0,hi=1;Vector2 d=to-from;
+            for(int axis=0;axis<2;axis++){
+                float start=axis==0?from.x:from.y,delta=axis==0?d.x:d.y,c=axis==0?center.x:center.y;
+                if(Mathf.Abs(delta)<.000001f){if(Mathf.Abs(start-c)>.45f)return false;continue;}
+                float a=(c-.45f-start)/delta,b=(c+.45f-start)/delta;if(a>b){float t=a;a=b;b=t;}lo=Mathf.Max(lo,a);hi=Mathf.Min(hi,b);if(lo>hi)return false;
+            }
+            return true;
+        }
+
+        void ResolveImpact(ref Shot strike)
+        {
+            if(!strike.damaging||grace>0||hit)return;
+            bool touches=false;
+            for(int i=1;i<movementPath.Count;i++)if(CrossesTile(movementPath[i-1],movementPath[i],Center(strike.cell))){touches=true;break;}
+            if(!touches)return;
+            Vector2 incoming=(Center(strike.sourceCell)-player).normalized;
+            if((dashing||dashDuringStep)&&(shieldArmed||shieldAtStepStart)&&shieldCD<=0&&Vector2.Dot(direction,incoming)>=.5f){shieldArmed=false;shieldCD=8;strike.active=false;ShieldBlocked?.Invoke(player);return;}
+            hit=true;
+        }
+
+        void StepStrike(ref Shot strike,float dt)
+        {
+            float remainingTime=dt;
+            while(strike.active&&remainingTime>0){
+                ResolveImpact(ref strike);if(!strike.active||hit)return;
+                float part=Mathf.Min(remainingTime,Mathf.Max(0,strike.timer));strike.timer-=part;remainingTime-=part;
+                if(strike.timer>.000001f)break;
+                if(!strike.damaging){strike.damaging=true;strike.timer=strike.impactDuration;ResolveImpact(ref strike);}
+                else {strike.remaining--;var next=strike.cell+strike.heading;if(strike.remaining<=0||!InBounds(next)){strike.active=false;break;}strike.sourceCell=strike.cell;strike.cell=next;strike.pos=Center(next);strike.damaging=false;strike.timer=strike.warning;}
+            }
         }
 
         public void Release()
@@ -177,7 +260,7 @@ namespace BlockNight
             for (int i = 0; i < foes.Length; i++)
             {
                 var f = foes[i];
-                if (!f.active || f.pending || f.age < settings.spawnWarning || SegmentDistance(f.pos, from, to) > .28f) continue;
+                if (!f.active || f.pending || f.age < RulesFor(f.type).spawnWarning || SegmentDistance(f.pos, from, to) > .28f) continue;
                 chain++; kills++;
                 score += Mathf.RoundToInt(100 * (1 + .25f * Mathf.Min(chain - 1, 12)) * (1 + .25f * levels[6]));
                 reward -= settings.killSeconds + .35f * levels[5];
@@ -200,6 +283,7 @@ namespace BlockNight
                 Vector2 before = player;
                 travel = Mathf.Min(1, travel + slice * speed);
                 player = Vector2.Lerp(Center(cell), Center(target), travel);
+                movementPath.Add(player);
                 if (dashing) Slash(before, player);
                 remaining -= slice;
                 if (travel < .99999f) break;
@@ -216,7 +300,7 @@ namespace BlockNight
 
         void FinishDash()
         {
-            moving = dashing = false; queuedDirection = Vector2.zero;
+            moving = dashing = false; shieldArmed=false; queuedDirection = Vector2.zero;
             if (chain > 0)
             {
                 score += 25 * chain * chain;
@@ -225,16 +309,6 @@ namespace BlockNight
                 ChainEnded?.Invoke(chain);
             }
             chain = 0;
-        }
-
-        static readonly Vector2[] NorthwestSoutheast = { new Vector2(-1, 1).normalized, new Vector2(1, -1).normalized };
-        static readonly Vector2[] NortheastSouthwest = { new Vector2(1, 1).normalized, new Vector2(-1, -1).normalized };
-        static readonly Vector2[] FourDiagonals = { new Vector2(-1, 1).normalized, new Vector2(1, -1).normalized, new Vector2(1, 1).normalized, new Vector2(-1, -1).normalized };
-        public static Vector2[] AttackDirections(int type, int volley)
-        {
-            if (type == 1) return FourDiagonals;
-            if (type == 2 || (type == 3 && volley % 2 == 1)) return NortheastSouthwest;
-            return NorthwestSoutheast;
         }
 
         void SpawnBatch(SpawnPhase phase)
@@ -262,6 +336,7 @@ namespace BlockNight
             grace = Mathf.Max(0, grace - dt);
             slowCD = Mathf.Max(0, slowCD - dt);
             rewindCD = Mathf.Max(0, rewindCD - dt);
+            shieldCD = Mathf.Max(0,shieldCD-dt);
             float wd = dt * WorldRate;
             if (slow > 0)
             {
@@ -282,61 +357,26 @@ namespace BlockNight
                 }
             }
             for (int i = 0; i < foes.Length; i++) if (foes[i].active && !foes[i].pending) foes[i].age += wd;
-            Vector2 old = player;
-            AdvancePlayer(dt);
-            for (int i = 0; i < foes.Length; i++)
-            {
-                var f = foes[i];
-                if (!f.active || f.pending || f.age < settings.spawnWarning || tutorial) continue;
-                f.timer -= wd;
-                if (f.timer > .7f)
-                {
-                    f.hopTimer -= wd;
-                    if (f.type == 2 && f.hopTimer <= 0)
-                    {
-                        var c = CellAt(f.pos);
-                        var delta = cell - c;
-                        if (delta != Vector2Int.zero)
-                        {
-                            var next = c + Cardinal(delta);
-                            if (InBounds(next) && !Occupied(next, i) && next != cell) f.pos = Center(next);
-                        }
-                        f.hopTimer = 1.3f;
-                    }
-                }
-                if (f.timer <= 0)
-                {
-                    foreach (var heading in AttackDirections(f.type, f.volley)) Fire(f.pos, heading);
-                    f.volley++;
-                    f.timer = Mathf.Max(1.5f, 3.2f - elapsed / 160);
-                }
-                foes[i] = f;
-            }
-            for (int i = 0; i < shots.Length; i++)
-            {
-                var s = shots[i];
-                if (!s.active) continue;
-                Vector2 before = s.pos;
-                s.pos += s.vel * wd; s.life -= wd;
-                if (grace <= 0 && SegmentDistance(Vector2.zero, before - old, s.pos - player) < .23f) hit = true;
-                if (s.life <= 0 || Mathf.Abs(s.pos.x) > 4.5f || Mathf.Abs(s.pos.y) > 4.5f) s.active = false;
-                shots[i] = s;
-            }
+            dashDuringStep=dashing;shieldAtStepStart=shieldArmed;
+            movementPath.Clear();movementPath.Add(player);
+            AdvancePlayer(dt);if(movementPath.Count==1)movementPath.Add(player);
+            for(int i=0;i<foes.Length;i++)StepEnemy(i,wd);
+            for(int i=0;i<shots.Length;i++)if(shots[i].active){var strike=shots[i];StepStrike(ref strike,wd);shots[i]=strike;}
             // A lethal hit interrupts by death, but cannot be used to steer an ongoing slash.
-            if (hit) { moving = dashing = false; }
+            if (hit) { moving = dashing = false; shieldArmed=false; }
             if (reward <= 0 && !tutorial && !hit && !dashing) { reward = 0; draft = true; }
         }
 
         public Frame Capture() => new Frame
         {
-            player = player, direction = direction, queuedDirection = queuedDirection, phaseIndex = phaseIndex, cell = cell, target = target, moving = moving, dashing = dashing, travel = travel,
+            player = player, direction = direction, queuedDirection = queuedDirection, phaseIndex = phaseIndex, shieldArmed=shieldArmed, cell = cell, target = target, moving = moving, dashing = dashing, travel = travel,
             foes = (Foe[])foes.Clone(), shots = (Shot[])shots.Clone(), elapsed = elapsed, spawn = spawn, reward = reward,
             score = score, kills = kills, chain = chain, bestChain = bestChain, rng = rng
         };
 
         public void Restore(Frame f)
         {
-            player = f.player; direction = f.direction; queuedDirection = f.queuedDirection; phaseIndex = f.phaseIndex; cell = f.cell; target = f.target; moving = f.moving; dashing = f.dashing; travel = f.travel;
+            player = f.player; direction = f.direction; queuedDirection = f.queuedDirection; phaseIndex = f.phaseIndex; cell = f.cell; target = f.target; moving = f.moving; dashing = f.dashing; travel = f.travel; shieldArmed=f.shieldArmed && shieldCD<=0 && dashing;
             Array.Copy(f.foes, foes, Capacity); Array.Copy(f.shots, shots, Bullets);
             elapsed = f.elapsed; spawn = f.spawn; reward = f.reward; score = f.score; kills = f.kills;
             chain = f.chain; bestChain = f.bestChain; rng = f.rng; hit = draft = false;
@@ -345,15 +385,15 @@ namespace BlockNight
         public int[] Offers()
         {
             var bag = new List<int>();
-            for (int i = 0; i < 9; i++) if (levels[i] < 3) bag.Add(i);
+            for (int i = 0; i < levels.Length; i++) if (levels[i] < MaxLevel(i)) bag.Add(i);
             var result = new int[3];
             for (int i = 0; i < 3; i++)
             {
-                if (bag.Count == 0) { result[i] = 9; continue; }
+                if (bag.Count == 0) { result[i] = 10; continue; }
                 int n = (int)(NextRandom() * bag.Count); result[i] = bag[n]; bag.RemoveAt(n);
             }
             return result;
         }
-        public void Choose(int id) { if (id < 9) levels[id]++; else score += 2500; reward = settings.upgradeSeconds; draft = false; }
+        public void Choose(int id) { if (id < levels.Length) levels[id]=Mathf.Min(MaxLevel(id),levels[id]+1); else score += 2500; reward = settings.upgradeSeconds; draft = false; }
     }
 }
