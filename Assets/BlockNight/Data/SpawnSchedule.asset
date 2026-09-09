@@ -15,18 +15,18 @@ MonoBehaviour:
   phases:
   - phaseName: "\u5165\u9635"
     duration: 25
-    spawnCount: 2
+    spawnCount: 3
     spawnInterval: 3
     enemyTypes: 00000000
   - phaseName: "\u4EA4\u950B"
     duration: 35
     spawnCount: 3
-    spawnInterval: 3
+    spawnInterval: 2.7
     enemyTypes: 0000000001000000
   - phaseName: "\u6E38\u730E"
     duration: 40
     spawnCount: 3
-    spawnInterval: 2.7
+    spawnInterval: 2.4
     enemyTypes: 0100000002000000
   - phaseName: "\u8109\u51B2"
     duration: 45
@@ -39,10 +39,10 @@ MonoBehaviour:
     spawnInterval: 2.2
     enemyTypes: 00000000010000000200000003000000
   - phaseName: "\u5598\u606F"
-    duration: 8
-    spawnCount: 0
+    duration: 30
+    spawnCount: 5
     spawnInterval: 2
-    enemyTypes: 00000000
+    enemyTypes: 
   - phaseName: "\u6781\u9650"
     duration: 60
     spawnCount: 5

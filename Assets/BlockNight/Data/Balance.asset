@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: Balance
   m_EditorClassIdentifier: 
   boardHalf: 3.5
-  playerSpeed: 13
+  playerSpeed: 11
   walkSpeed: 7
   slowRate: 0.18
   slowSeconds: 2.6
   slowCooldown: 11
   rewindSeconds: 3
   rewindCooldown: 16
-  upgradeSeconds: 30
+  upgradeSeconds: 60
   killSeconds: 1.2
   spawnWarning: 1.2

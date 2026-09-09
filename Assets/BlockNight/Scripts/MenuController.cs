@@ -29,12 +29,6 @@ namespace BlockNight
             if (GameInput.Down(KeyCode.M)) audioBus.ToggleMute();
             audioBus.Tick(0, 1, !isGameOver, Time.unscaledDeltaTime);
         }
-        void Start() {
-            if(isGameOver)audioBus.Cue(6);
-            if(titleAnimation){string plain=titleAnimation.textAnimator.tmproText.text;titleAnimation.ShowText("{fade}"+(isGameOver?"<wave a=0.05 f=0.35>":"<wave a=0.1 f=0.3>")+plain+"</wave>{/fade}");}
-            if(resultAnimation)resultAnimation.ShowText("{fade}"+resultText.text+"{/fade}");
-            if(primaryAnimation)primaryAnimation.ShowText("{fade}"+primaryAnimation.textAnimator.tmproText.text+"{/fade}");
-            if(secondaryAnimation)secondaryAnimation.ShowText("{fade}"+secondaryAnimation.textAnimator.tmproText.text+"{/fade}");
-        }
+        void Start() { if(isGameOver)audioBus.Cue(6); }
     }
 }

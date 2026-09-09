@@ -1,0 +1,20 @@
+{
+  "MainMenu": {
+    "rectCount": 7,
+    "unchanged": true,
+    "TMPCount": 3,
+    "correctFont": true
+  },
+  "BlockNight": {
+    "rectCount": 42,
+    "unchanged": true,
+    "TMPCount": 28,
+    "correctFont": true
+  },
+  "GameOver": {
+    "rectCount": 8,
+    "unchanged": true,
+    "TMPCount": 4,
+    "correctFont": true
+  }
+}

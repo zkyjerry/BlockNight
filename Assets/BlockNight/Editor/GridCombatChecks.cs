@@ -22,19 +22,20 @@ namespace BlockNight.Editor {
     for(int side=0;side<3;side++){
      m=new CombatModel(balance,schedule);m.levels[9]=1;m.direction=Vector2.right;m.Dash();var saved=m.Capture();int blocked=0;m.ShieldBlocked+=p=>blocked++;
      var source=new Vector2Int(side==0?4:side==1?2:3,side==2?4:3);m.shots[0]=Hazard(m.cell,source);m.Step(.01f);
-     Check(side==0?!m.hit&&blocked==1&&!m.shots[0].active:m.hit&&blocked==0,"shield front/side/rear arc");
-     if(side==0){Check(m.shieldCD==8&&!m.shieldArmed,"one charge consumed and cooldown starts");m.Restore(saved);Check(!m.shieldArmed&&m.shieldCD==8,"rewind cannot refund consumed shield");}
+     Check(!m.hit&&blocked==1&&!m.shots[0].active,"shield absorbs front/side/rear impact");
+     if(side==0){Check(m.levels[9]==0&&!m.shieldArmed,"one shield consumed without recharge");m.Restore(saved);Check(!m.shieldArmed&&m.levels[9]==0,"rewind cannot refund consumed shield");}
     }
     m=new CombatModel(balance,schedule);m.levels[9]=1;m.direction=Vector2.right;m.Dash();m.shots[0]=m.shots[1]=Hazard(m.cell,new Vector2Int(4,3));m.Step(.01f);Check(m.hit&&!m.shots[0].active&&m.shots[1].active,"shield blocks only one simultaneous impact");
     m=new CombatModel(balance,schedule);m.levels[9]=1;m.shots[0]=Hazard(m.cell,new Vector2Int(4,3));m.Step(.01f);Check(m.hit,"stationary player has no shield");
     m=new CombatModel(balance,schedule);m.Choose(9);Check(m.levels[9]==1&&m.Offers().All(i=>i!=9),"one-level shield excluded after acquisition");for(int i=0;i<10;i++)m.levels[i]=CombatModel.MaxLevel(i);Check(m.Offers().All(i=>i==10),"all-max fallback moved after shield");
+    m=new CombatModel(balance,schedule);for(int i=0;i<9;i++)m.levels[i]=3;m.Choose(9);m.Choose(9);Check(m.levels[9]==1&&m.Offers().All(i=>i!=9),"shield cannot stack or appear while held");m.direction=Vector2.right;m.Dash();m.shots[0]=Hazard(m.cell,m.cell+Vector2Int.up);m.Step(.01f);Check(m.levels[9]==0&&m.Offers().Contains(9),"consumed shield returns to upgrade pool");Frames(m,900);Check(m.levels[9]==0,"shield never automatically recharges");m.Choose(9);Check(m.levels[9]==1,"new upgrade replenishes exactly one shield");
     m=new CombatModel(balance,schedule){grace=20};m.Spawn(1,CombatModel.Center(new Vector2Int(2,2)));m.foes[0].age=3;float before=m.foes[0].timer;m.Slow();m.Step(.05f);Check(Mathf.Abs(m.foes[0].timer-(before-.05f*.18f))<.0001f,"time fold slows enemy rules");
     schedule.phases=new[]{new SpawnPhase{spawnCount=4,spawnInterval=1,enemyTypes=new[]{EnemyKind.突进方卫,EnemyKind.斜波棱镜,EnemyKind.巡格猎手,EnemyKind.逆波脉冲}}};m=new CombatModel(balance,schedule);
     for(int i=0;i<10000;i++){
      m.grace=10;if(i%19==0)m.MoveOrTurn(new[]{Vector2.up,Vector2.right,Vector2.down,Vector2.left}[(i/19)%4]);if(i%71==0)m.Dash();m.Step(1f/60);if(m.draft)m.Choose(m.Offers()[0]);
      Check(CombatModel.InBounds(m.cell)&&CombatModel.InBounds(m.target),"player stays on board");var active=m.foes.Where(f=>f.active).ToArray();Check(active.Select(f=>f.pos).Distinct().Count()==active.Length,"no enemy overlap");foreach(var f in active)Check(f.pos==CombatModel.Center(CombatModel.CellAt(f.pos)),"enemy always at grid center");foreach(var attack in m.shots.Where(x=>x.active))Check(CombatModel.InBounds(attack.cell)&&attack.pos==CombatModel.Center(attack.cell)&&attack.vel==Vector2.zero,"all attacks stay on exact tiles; no flying bullets");
     }
-    return "GRID V4 MODEL PASS: "+assertions+" assertions, 10,000 simulated frames. SO timing, ram, diagonal tile wave, shield arcs/one-hit/cooldown/rewind, grid occupancy and upgrades.";
+    return "GRID V4 MODEL PASS: "+assertions+" assertions, 10,000 simulated frames. SO timing, ram, diagonal tile wave, shield omnidirectional/consumption/reoffer/rewind, grid occupancy and upgrades.";
    }finally{UnityEngine.Object.DestroyImmediate(balance);UnityEngine.Object.DestroyImmediate(schedule);UnityEngine.Object.DestroyImmediate(definition);}
   }
 #if UNITY_EDITOR

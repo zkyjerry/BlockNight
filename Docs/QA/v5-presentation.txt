@@ -1,0 +1,2 @@
+PASS: four non-red enemies/spawn effects, red attack target, 48-point circular shield, side-hit consumption and particles, upgrade card bounds.
+2026-09-09T20:43:24

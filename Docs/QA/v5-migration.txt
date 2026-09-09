@@ -1,0 +1,2 @@
+PASS: TextAnimator components removed from both menu scenes; TMP layouts retained; serialized 48-point shield circle.
+2026-09-09T20:41:58

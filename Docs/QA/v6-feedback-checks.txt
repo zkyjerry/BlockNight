@@ -1,0 +1,2 @@
+PASS: wave switch/scoring/timer/no duplicates/snapshot; growing warning; CCW border; one-shot skill ready; 220 shield shards/two rings; two-second danger; actual Cinemachine position and size; rewind restoration.
+2026-09-09T21:39:41

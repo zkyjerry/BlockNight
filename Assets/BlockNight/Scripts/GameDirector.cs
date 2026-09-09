@@ -14,6 +14,7 @@ namespace BlockNight
         bool started;
         public ArenaPresentation arena;
         public GameHUD hud;
+        public CombatFeedback feedback;
         public SynthAudio audioBus;
         public CombatModel model;
         public Mode mode;
@@ -43,9 +44,10 @@ namespace BlockNight
             {
                 arena.Kill(p, n, deferred);
                 if (!deferred) audioBus.Cue(2, n);
-                hud.RewardPunch();
+                hud.RewardPunch();if(feedback)feedback.RewardPulse();
             };
-            model.ShieldBlocked += p => { arena.ShieldBreak(p);audioBus.Cue(3);hud.Banner("盾弧破碎 / 8 秒重充"); };
+            model.UpgradeWaveEnded += (p,radius) => {if(feedback)feedback.WaveDissolve(p,radius);};
+            model.ShieldBlocked += p => { arena.ShieldBreak(p);audioBus.Cue(3);hud.Banner("护盾已消耗 / 强化可再次获得"); };
             model.ChainEnded += n => { hud.Banner("连斩 " + n.ToString("00") + " / " + ArenaPresentation.TierName(n)); audioBus.Cue(3, n); };
             history.Clear(); sample = 0;
         }
@@ -57,7 +59,7 @@ namespace BlockNight
             model.tutorial = tutorial; mode = Mode.Playing;
             if (tutorial) PlacePlayer(new Vector2Int(3, 1));
             tutorialStart = model.cell;
-            arena.ClearEffects(); audioBus.Cue(0);
+            arena.ClearEffects();if(feedback)feedback.ResetEffects(); audioBus.Cue(0);
         }
 
         void PlacePlayer(Vector2Int c)
@@ -74,6 +76,7 @@ namespace BlockNight
         {
             if (mode != Mode.Draft) return;
             model.Choose(offers[index]); history.Clear(); sample = 0;
+            if(feedback&&feedback.settings.upgradeShockwave)model.StartUpgradeWave(feedback.settings.shockwaveSeconds,feedback.settings.shockwaveRadius);
             mode = Mode.Playing; audioBus.Cue(4);
         }
 
@@ -112,7 +115,7 @@ namespace BlockNight
             returnTutorial = model.tutorial;
             rewindFrom = history.Count - 1; rewindClock = 0; mode = Mode.Rewinding;
             if (model.slow > 0) model.slowCD = Mathf.Max(model.slowCD, balance.slowCooldown - 1.5f * model.levels[3]);
-            model.slow = 0; audioBus.Cue(5); arena.ClearEffects(); return true;
+            model.slow = 0; audioBus.Cue(5); arena.ClearEffects();if(feedback)feedback.ClearWaveParticles();if(feedback)feedback.Focus(false,model.player); return true;
         }
 
         void Update() { GameInput.Poll(); Tick(Mathf.Min(Time.unscaledDeltaTime, .05f)); }
@@ -151,7 +154,9 @@ namespace BlockNight
                     if (GameInput.Down(KeyCode.D) || GameInput.Down(KeyCode.RightArrow)) MoveOrTurn(Vector2.right);
                     if (GameInput.Down(KeyCode.J)) StartSlash();
                     if (GameInput.Down(KeyCode.K)) ActivateSlow();
+                    float oldSlowCD=model.slowCD,oldRewindCD=model.rewindCD;
                     model.Step(dt);
+                    if(feedback){if(oldSlowCD>0&&model.slowCD<=0&&model.slow<=0)feedback.Ready(false);if(oldRewindCD>0&&model.rewindCD<=0)feedback.Ready(true);}
                     sample += dt;
                     if (sample >= .05f)
                     {
@@ -160,7 +165,7 @@ namespace BlockNight
                     }
                     AdvanceTutorial();
                     if (tutorialStep == 6 && GameInput.Down(KeyCode.Return)) Begin(false);
-                    if (model.hit) { mode = Mode.Dying; danger = .6f; audioBus.Cue(6); }
+                    if (model.hit) { mode = Mode.Dying; danger = feedback?feedback.settings.dyingSeconds:.6f; audioBus.Cue(6); }
                     else if (model.draft) { offers = model.Offers(); hud.SetOffers(offers, model.levels); mode = Mode.Draft; audioBus.Cue(4); }
                 }
             }
@@ -171,8 +176,10 @@ namespace BlockNight
                 if (GameInput.Down(KeyCode.Alpha3)) Choose(2);
             }
             if (mode == Mode.Dead && routeScenes) { SceneFlow.Finish(model); return; }
+            if(feedback)feedback.Focus(mode==Mode.Dying,model.player);
             arena.Render(model);
             arena.TimeEffect(model.slow > 0, mode == Mode.Rewinding, mode == Mode.Dying, dt);
+            if(feedback)feedback.Render(model,dt);
             hud.Render(this, history.Count >= 11);
             audioBus.Tick(model.elapsed, model.WorldRate, mode == Mode.Playing, dt);
         }

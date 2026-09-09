@@ -1,0 +1,2 @@
+PASS: radius 2 kills inside/boundary only, outside survives; 225 score / 2.4 seconds; exact endpoint; one 128-particle circumference burst; no repeats; rewind radius snapshot; invalid radius clamp.
+2026-09-09T21:38:28

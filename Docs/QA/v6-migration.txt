@@ -1,0 +1,1 @@
+PASS: saved experiment SO, Cinemachine focus camera, thick world countdown ring, upgrade wave, non-blocking skill flash; existing UI layout preserved.

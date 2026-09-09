@@ -38,6 +38,10 @@ namespace BlockNight
         public Shot[] shots;
         public float elapsed, spawn, reward;
         public int score, kills, chain, bestChain;
+        public bool upgradeWaveActive;
+        public Vector2 upgradeWaveOrigin;
+        public float upgradeWaveRadius, upgradeWaveDuration, upgradeWaveMaxRadius;
+        public int upgradeWaveKills;
         public uint rng;
         public int phaseIndex;
     }
@@ -61,10 +65,14 @@ namespace BlockNight
         public uint rng = 7193;
         public bool hit, draft, tutorial;
         public int[] levels = new int[10];
+        public bool upgradeWaveActive;
+        public Vector2 upgradeWaveOrigin;
+        public float upgradeWaveRadius, upgradeWaveDuration, upgradeWaveMaxRadius;
+        public int upgradeWaveKills;
         public bool shieldArmed;
-        public float shieldCD;
         public EnemyDefinition[] enemyDefinitions;
         public event Action<Vector2> ShieldBlocked;
+        public event Action<Vector2,float> UpgradeWaveEnded;
         bool dashDuringStep, shieldAtStepStart;
         readonly List<Vector2> movementPath = new List<Vector2>();
         static readonly EnemyRules[] Defaults = {
@@ -134,7 +142,7 @@ namespace BlockNight
             if (moving || hit || draft || !InBounds(cell + Cardinal(direction))) return false;
             chain = 0; queuedDirection = Vector2.zero;
             target = cell + Cardinal(direction);
-            moving = dashing = true; shieldArmed = levels[9]>0 && shieldCD<=0;
+            moving = dashing = true; shieldArmed = levels[9]>0;
             travel = 0;
             return true;
         }
@@ -228,8 +236,7 @@ namespace BlockNight
             bool touches=false;
             for(int i=1;i<movementPath.Count;i++)if(CrossesTile(movementPath[i-1],movementPath[i],Center(strike.cell))){touches=true;break;}
             if(!touches)return;
-            Vector2 incoming=(Center(strike.sourceCell)-player).normalized;
-            if((dashing||dashDuringStep)&&(shieldArmed||shieldAtStepStart)&&shieldCD<=0&&Vector2.Dot(direction,incoming)>=.5f){shieldArmed=false;shieldCD=8;strike.active=false;ShieldBlocked?.Invoke(player);return;}
+            if((dashing||dashDuringStep)&&(shieldArmed||shieldAtStepStart)&&levels[9]>0){shieldArmed=false;levels[9]=0;strike.active=false;ShieldBlocked?.Invoke(player);return;}
             hit=true;
         }
 
@@ -261,15 +268,21 @@ namespace BlockNight
             {
                 var f = foes[i];
                 if (!f.active || f.pending || f.age < RulesFor(f.type).spawnWarning || SegmentDistance(f.pos, from, to) > .28f) continue;
-                chain++; kills++;
-                score += Mathf.RoundToInt(100 * (1 + .25f * Mathf.Min(chain - 1, 12)) * (1 + .25f * levels[6]));
-                reward -= settings.killSeconds + .35f * levels[5];
-                f.killChain = chain;
-                f.pending = slow > 0;
-                f.active = f.pending;
-                foes[i] = f;
-                Killed?.Invoke(f.pos, chain, f.pending);
+                chain++; KillEnemy(i,chain,slow>0);
             }
+        }
+
+        void KillEnemy(int index,int count,bool deferred){
+            var f=foes[index];if(!f.active||f.pending)return;kills++;
+            score+=Mathf.RoundToInt(100*(1+.25f*Mathf.Min(count-1,12))*(1+.25f*levels[6]));
+            reward-=settings.killSeconds+.35f*levels[5];f.killChain=count;f.pending=deferred;f.active=deferred;foes[index]=f;Killed?.Invoke(f.pos,count,deferred);
+        }
+        public void StartUpgradeWave(float seconds,float radius=11){upgradeWaveMaxRadius=Mathf.Max(.1f,radius);upgradeWaveActive=true;upgradeWaveOrigin=player;upgradeWaveRadius=0;upgradeWaveKills=0;upgradeWaveDuration=Mathf.Max(.1f,seconds);grace=Mathf.Max(grace,upgradeWaveDuration);}
+        void StepUpgradeWave(float dt){
+            if(!upgradeWaveActive)return;upgradeWaveRadius=Mathf.Min(upgradeWaveMaxRadius,upgradeWaveRadius+upgradeWaveMaxRadius*dt/upgradeWaveDuration);
+            for(int i=0;i<foes.Length;i++)if(foes[i].active&&Vector2.Distance(foes[i].pos,upgradeWaveOrigin)<=upgradeWaveRadius){if(foes[i].pending){Killed?.Invoke(foes[i].pos,foes[i].killChain,false);foes[i].active=foes[i].pending=false;}else KillEnemy(i,++upgradeWaveKills,false);}
+            for(int i=0;i<shots.Length;i++)if(shots[i].active&&Vector2.Distance(shots[i].pos,upgradeWaveOrigin)<=upgradeWaveRadius)shots[i].active=false;
+            if(upgradeWaveRadius>=upgradeWaveMaxRadius){upgradeWaveActive=false;UpgradeWaveEnded?.Invoke(upgradeWaveOrigin,upgradeWaveMaxRadius);}
         }
 
         void AdvancePlayer(float dt)
@@ -336,7 +349,6 @@ namespace BlockNight
             grace = Mathf.Max(0, grace - dt);
             slowCD = Mathf.Max(0, slowCD - dt);
             rewindCD = Mathf.Max(0, rewindCD - dt);
-            shieldCD = Mathf.Max(0,shieldCD-dt);
             float wd = dt * WorldRate;
             if (slow > 0)
             {
@@ -356,6 +368,7 @@ namespace BlockNight
                     SpawnBatch(phase);
                 }
             }
+            StepUpgradeWave(dt);
             for (int i = 0; i < foes.Length; i++) if (foes[i].active && !foes[i].pending) foes[i].age += wd;
             dashDuringStep=dashing;shieldAtStepStart=shieldArmed;
             movementPath.Clear();movementPath.Add(player);
@@ -364,19 +377,21 @@ namespace BlockNight
             for(int i=0;i<shots.Length;i++)if(shots[i].active){var strike=shots[i];StepStrike(ref strike,wd);shots[i]=strike;}
             // A lethal hit interrupts by death, but cannot be used to steer an ongoing slash.
             if (hit) { moving = dashing = false; shieldArmed=false; }
-            if (reward <= 0 && !tutorial && !hit && !dashing) { reward = 0; draft = true; }
+            if (reward <= 0 && !tutorial && !hit && !dashing && !upgradeWaveActive) { reward = 0; draft = true; }
         }
 
         public Frame Capture() => new Frame
         {
             player = player, direction = direction, queuedDirection = queuedDirection, phaseIndex = phaseIndex, shieldArmed=shieldArmed, cell = cell, target = target, moving = moving, dashing = dashing, travel = travel,
+            upgradeWaveActive=upgradeWaveActive, upgradeWaveOrigin=upgradeWaveOrigin, upgradeWaveRadius=upgradeWaveRadius, upgradeWaveDuration=upgradeWaveDuration, upgradeWaveMaxRadius=upgradeWaveMaxRadius, upgradeWaveKills=upgradeWaveKills,
             foes = (Foe[])foes.Clone(), shots = (Shot[])shots.Clone(), elapsed = elapsed, spawn = spawn, reward = reward,
             score = score, kills = kills, chain = chain, bestChain = bestChain, rng = rng
         };
 
         public void Restore(Frame f)
         {
-            player = f.player; direction = f.direction; queuedDirection = f.queuedDirection; phaseIndex = f.phaseIndex; cell = f.cell; target = f.target; moving = f.moving; dashing = f.dashing; travel = f.travel; shieldArmed=f.shieldArmed && shieldCD<=0 && dashing;
+            player = f.player; direction = f.direction; queuedDirection = f.queuedDirection; phaseIndex = f.phaseIndex; cell = f.cell; target = f.target; moving = f.moving; dashing = f.dashing; travel = f.travel; shieldArmed=f.shieldArmed && levels[9]>0 && dashing;
+            upgradeWaveActive=f.upgradeWaveActive;upgradeWaveOrigin=f.upgradeWaveOrigin;upgradeWaveRadius=f.upgradeWaveRadius;upgradeWaveDuration=f.upgradeWaveDuration;upgradeWaveMaxRadius=f.upgradeWaveMaxRadius;upgradeWaveKills=f.upgradeWaveKills;
             Array.Copy(f.foes, foes, Capacity); Array.Copy(f.shots, shots, Bullets);
             elapsed = f.elapsed; spawn = f.spawn; reward = f.reward; score = f.score; kills = f.kills;
             chain = f.chain; bestChain = f.bestChain; rng = f.rng; hit = draft = false;

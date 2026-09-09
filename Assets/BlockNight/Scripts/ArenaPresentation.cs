@@ -16,6 +16,7 @@ namespace BlockNight
         public Sprite[] shapes;
         public ParticleSystem shards;
         public Volume volume;
+        public FeedbackSettings feedbackSettings;
         public CinemachineImpulseSource impulse; // Kept for existing scene serialization; no longer drives feedback.
         public Light2D playerLight;
         public Transform shakeCamera;
@@ -24,7 +25,7 @@ namespace BlockNight
         public SpriteRenderer[] shockwaves;
         public float cellSize = 1.375f;
 
-        readonly Color[] colors = { new Color(1, .22f, .32f), new Color(.68f, .35f, 1), new Color(1, .64f, .16f), new Color(1, .25f, .69f) };
+        readonly Color[] colors = { new Color(1, .66f, .1f), new Color(.58f, .35f, 1), new Color(.95f, .9f, .5f), new Color(.3f, 1, .42f) };
         Bloom bloom;
         ChromaticAberration chroma;
         ColorAdjustments grade;
@@ -107,10 +108,14 @@ namespace BlockNight
             player.DOPunchScale(playerScale * (.45f + tier * .15f), .13f, 1);
         }
 
+        public void StopShake(){Initialize();cameraTween?.Kill();shakeCamera.localPosition=cameraRest;}
+
         public void ShieldBreak(Vector2 p)
         {
             Initialize();shards.Play();
-            for(int i=0;i<40;i++){Vector2 v=Random.insideUnitCircle*4;shards.Emit(new ParticleSystem.EmitParams{position=World(p,-.3f),velocity=v,startSize=.08f,startLifetime=.3f,startColor=new Color(.5f,1,1)*2},1);}
+            for(int i=0;i<220;i++){float angle=2*Mathf.PI*i/220f;Vector2 normal=new Vector2(Mathf.Cos(angle),Mathf.Sin(angle));shards.Emit(new ParticleSystem.EmitParams{position=World(p+normal*.58f,-.3f),velocity=normal*Random.Range(4f,9f),startSize=Random.Range(.1f,.22f),startLifetime=Random.Range(.35f,.7f),startColor=Color.Lerp(new Color(.3f,1,.85f),Color.white,Random.value)*2.5f},1);}
+            for(int i=0;i<2;i++){var ring=shockwaves[ringIndex++%shockwaves.Length];ring.DOKill();ring.transform.DOKill();ring.enabled=true;ring.transform.position=World(p,-.4f);ring.transform.localScale=Vector3.one*(1+i*.3f);ring.color=new Color(.5f,1,.85f)*2.5f;ring.transform.DOScale(3.8f+i*.8f,.38f+i*.08f).SetEase(Ease.OutCubic);ring.DOFade(0,.4f+i*.08f).OnComplete(()=>ring.enabled=false);}
+            StopShake();cameraTween=shakeCamera.DOShakePosition(.32f,new Vector3(.28f,.28f,0),35,90,false,true).SetUpdate(UpdateType.Late).OnComplete(()=>shakeCamera.localPosition=cameraRest);kick=1;feedbackTime=.65f;feedbackChain=Mathf.Max(feedbackChain,5);
         }
 
         public void Render(CombatModel m)
@@ -139,23 +144,25 @@ namespace BlockNight
                 bool committed=f.attackWindup||f.moveWindup;
                 Vector2Int target=f.attackWindup?f.attackTarget:f.moveTarget;
                 bool targetValid=committed&&CombatModel.InBounds(target);
-                warnings[i].sprite=shapes[0];
+                float warningProgress=1-Mathf.Clamp01((f.attackWindup?f.timer:f.hopTimer)/Mathf.Max(.001f,f.attackWindup?rules.attackWarning:rules.moveWarning));
+                float growth=Mathf.Lerp(.2f,1,warningProgress);
+                warnings[i].sprite=forming?shapes[f.type]:shapes[0];
                 warnings[i].transform.position=World(targetValid?CombatModel.Center(target):f.pos,0);
-                warnings[i].transform.localScale=Vector3.one*(forming?1.15f:targetValid?cellSize*.88f:.7f);
-                warnings[i].color=new Color(c.r,c.g,c.b,forming?.45f:targetValid?.25f:.08f);
+                warnings[i].transform.localScale=Vector3.one*(forming?1.15f:targetValid?cellSize*.88f*growth:.7f);
+                warnings[i].color=!forming&&targetValid?new Color(1,.035f,.055f,.32f):new Color(c.r,c.g,c.b,forming?.45f:.08f);
                 if(!forming&&!f.pending&&targetValid){
-                    var l=aims[i];l.enabled=true;l.startColor=l.endColor=new Color(c.r,c.g,c.b,.9f);
-                    Vector3 p=World(CombatModel.Center(target),-.05f);float half=cellSize*.45f;
+                    var l=aims[i];l.enabled=true;l.startColor=l.endColor=new Color(1,.035f,.055f,.95f);
+                    Vector3 p=World(CombatModel.Center(target),-.05f);float half=cellSize*.45f*growth;
                     l.positionCount=5;l.SetPosition(0,p+new Vector3(-half,-half));l.SetPosition(1,p+new Vector3(-half,half));l.SetPosition(2,p+new Vector3(half,half));l.SetPosition(3,p+new Vector3(half,-half));l.SetPosition(4,p+new Vector3(-half,-half));
                 }
             }
             for (int i = 0; i < bullets.Length; i++)
             {
                 var s = m.shots[i]; bullets[i].enabled = s.active;
-                if(s.active){bullets[i].transform.position=World(CombatModel.Center(s.cell),-.15f);bullets[i].sprite=shapes[0];bullets[i].transform.localScale=Vector3.one*cellSize*(s.damaging?.88f:.7f);bullets[i].color=s.damaging?new Color(1,.48f,.12f,.75f)*1.7f:new Color(1,.55f,.15f,.22f);}
+                if(s.active){bullets[i].transform.position=World(CombatModel.Center(s.cell),-.15f);bullets[i].sprite=shapes[0];bullets[i].transform.localScale=Vector3.one*cellSize*(s.damaging?.88f:Mathf.Lerp(.18f,.88f,1-Mathf.Clamp01(s.timer/Mathf.Max(.001f,s.warning))));bullets[i].color=s.damaging?new Color(1,.035f,.055f,.75f)*1.7f:new Color(1,.035f,.055f,.3f);}
 
             }
-            if(shieldArc){shieldArc.enabled=m.dashing&&m.shieldArmed;if(shieldArc.enabled){shieldArc.positionCount=21;float forward=Mathf.Atan2(m.direction.y,m.direction.x);for(int j=0;j<21;j++){float angle=forward+Mathf.Lerp(-Mathf.PI/3,Mathf.PI/3,j/20f);shieldArc.SetPosition(j,World(m.player+new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*.6f,-.35f));}}}
+            if(shieldArc){shieldArc.enabled=m.dashing&&m.shieldArmed;if(shieldArc.enabled){shieldArc.loop=true;shieldArc.positionCount=48;for(int j=0;j<48;j++){float angle=2*Mathf.PI*j/48f;shieldArc.SetPosition(j,World(m.player+new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*.6f,-.35f));}}}
         }
 
         public void TimeEffect(bool slow, bool rewind, bool death, float dt)
@@ -168,8 +175,8 @@ namespace BlockNight
             chroma.intensity.value = Mathf.Lerp(chroma.intensity.value, rewind ? .65f : slow ? .2f : kick * .1f, dt * 12);
             grade.colorFilter.value = Color.Lerp(grade.colorFilter.value, rewind ? new Color(.68f, .43f, 1) : slow ? new Color(.43f, .85f, 1) : Color.white, dt * 8);
             bool bright = feedbackTime > 0 && !death && !rewind;
-            vignette.color.value = Color.Lerp(vignette.color.value, bright ? new Color(1.5f, 12f, 8f) : Color.black, Mathf.Clamp01(dt * 16));
-            float targetIntensity = bright ? BrightCorners(feedbackChain) : death ? .5f : rewind ? .4f : .22f;
+            vignette.color.value = Color.Lerp(vignette.color.value, death ? (feedbackSettings?feedbackSettings.dyingColor:new Color(.23f,.005f,.018f)) : bright ? new Color(1.5f, 12f, 8f) : Color.black, Mathf.Clamp01(dt * 16));
+            float targetIntensity = bright ? BrightCorners(feedbackChain) : death ? (feedbackSettings?feedbackSettings.dyingVignette:.62f) : rewind ? .4f : .22f;
             vignette.intensity.value = Mathf.Lerp(vignette.intensity.value, targetIntensity, Mathf.Clamp01(dt * 18));
         }
 

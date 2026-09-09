@@ -1,2 +1,2 @@
 GRID V4 PASS — all TMP font references, independent card bindings, runtime flow, seven-step tutorial, dash steering and rewind lock, 64 scene tiles, camera tween/movement/reset, unchanged board/UI transforms, 280 particles and HDR bright vignette.
-2026-09-09T15:43:40
+2026-09-09T21:23:08
