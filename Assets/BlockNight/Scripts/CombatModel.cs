@@ -63,7 +63,7 @@ namespace BlockNight
         public float elapsed, spawn = 1.5f, reward, slow, slowCD, rewindCD, grace;
         public int score, kills, chain, bestChain;
         public uint rng = 7193;
-        public bool hit, draft, tutorial;
+        public bool hit, draft, tutorial, tutorialEnemyActions;
         public int[] levels = new int[10];
         public bool upgradeWaveActive;
         public Vector2 upgradeWaveOrigin;
@@ -197,7 +197,7 @@ namespace BlockNight
         void StepEnemy(int index,float dt)
         {
             var f=foes[index];var rules=RulesFor(f.type);
-            if(!f.active||f.pending||f.age<rules.spawnWarning||tutorial)return;
+            if(!f.active||f.pending||f.age<rules.spawnWarning||(tutorial&&!tutorialEnemyActions))return;
             if(!f.moveWindup)f.timer-=dt;
             if(!f.moveWindup&&!f.attackWindup&&f.timer<=rules.attackWarning){f.attackWindup=true;f.timer=Mathf.Max(f.timer,rules.attackWarning);f.attackTarget=PlanTarget(ref f,rules);}
             if(f.attackWindup&&f.timer<=0){

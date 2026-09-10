@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace BlockNight
 {
-    public enum Mode { Title, Playing, Paused, Draft, Dying, Dead, Rewinding }
+    public enum Mode { Title, Playing, Paused, Draft, Dying, Dead, Rewinding, Countdown }
 
     public class GameDirector : MonoBehaviour
     {
@@ -15,6 +15,7 @@ namespace BlockNight
         public ArenaPresentation arena;
         public GameHUD hud;
         public CombatFeedback feedback;
+        public LessonFlow lessons;
         public SynthAudio audioBus;
         public CombatModel model;
         public Mode mode;
@@ -34,7 +35,7 @@ namespace BlockNight
             hud.Bind(this); arena.Render(model);
         }
 
-        void Start() { if (!started) Begin(SceneFlow.NextRunTutorial); }
+        void Start() { if (!started) Begin(SceneFlow.NextRunTutorial,true); }
 
         void NewModel()
         {
@@ -52,15 +53,20 @@ namespace BlockNight
             history.Clear(); sample = 0;
         }
 
-        public void Begin(bool tutorial)
+        public void Begin(bool tutorial,bool showIntro=false)
         {
+            if(lessons)lessons.ResetFlow();
             started = true;
             NewModel(); tutorialStep = tutorial ? 0 : -1;
             model.tutorial = tutorial; mode = Mode.Playing;
             if (tutorial) PlacePlayer(new Vector2Int(3, 1));
             tutorialStart = model.cell;
             arena.ClearEffects();if(feedback)feedback.ResetEffects(); audioBus.Cue(0);
+            if(lessons){if(tutorial)lessons.StartLesson();else if(showIntro)lessons.StartCountdown();}
+            Present(0);
         }
+
+        public void ClearHistory(){history.Clear();sample=0;}
 
         void PlacePlayer(Vector2Int c)
         {
@@ -82,35 +88,30 @@ namespace BlockNight
 
         public void MoveOrTurn(Vector2 direction)
         {
-            if (mode != Mode.Playing) return;
+            if (mode != Mode.Playing || (model.tutorial&&lessons&&!lessons.CanMove)) return;
             Vector2 oldDirection = model.direction;
             if (!model.MoveOrTurn(direction)) return;
             audioBus.Cue(1);
-            if (tutorialStep == 0 && oldDirection != model.direction) tutorialStep = 1;
+
         }
 
         public bool StartSlash()
         {
-            if (mode != Mode.Playing || !model.Dash()) return false;
+            if (mode != Mode.Playing || (model.tutorial&&lessons&&!lessons.CanSlash) || !model.Dash()) return false;
             arena.DashStart(); audioBus.Cue(1, 4); return true;
         }
 
         public bool ActivateSlow()
         {
-            if (mode != Mode.Playing || !model.Slow()) return false;
+            if (mode != Mode.Playing || (model.tutorial&&lessons&&!lessons.CanSlow) || !model.Slow()) return false;
             audioBus.Cue(4);
-            if (tutorialStep == 3)
-            {
-                PlacePlayer(new Vector2Int(3, 0));
-                for (int j = 2; j <= 6; j++) model.Spawn(0, CombatModel.Center(new Vector2Int(3, j)));
-                for (int j = 0; j < model.foes.Length; j++) if (model.foes[j].active) model.foes[j].age = model.RulesFor(model.foes[j].type).spawnWarning;
-                tutorialStep = 4; StartSlash();
-            }
+            if(model.tutorial&&lessons)lessons.SlowActivated();
             return true;
         }
 
         public bool Rewind()
         {
+            if(model.tutorial&&lessons&&!lessons.CanRewind)return false;
             if ((mode != Mode.Playing && mode != Mode.Dying) || model.dashing || model.rewindCD > 0 || history.Count < 11) return false;
             returnTutorial = model.tutorial;
             rewindFrom = history.Count - 1; rewindClock = 0; mode = Mode.Rewinding;
@@ -122,6 +123,8 @@ namespace BlockNight
 
         public void Tick(float dt)
         {
+            if(mode==Mode.Countdown){lessons.TickCountdown(dt);Present(dt);return;}
+            if(model.tutorial&&lessons&&lessons.BeforeTick(dt)){Present(dt);return;}
             if (GameInput.Down(KeyCode.M)) audioBus.ToggleMute();
             if (GameInput.Down(KeyCode.Escape)) Pause();
             if (mode == Mode.Rewinding)
@@ -135,12 +138,12 @@ namespace BlockNight
                     model.grace = .55f + .25f * model.levels[8];
                     model.rewindCD = Mathf.Max(6, balance.rewindCooldown - 2 * model.levels[4]);
                     mode = Mode.Playing;
-                    if (returnTutorial && tutorialStep == 5) tutorialStep = 6;
+
                 }
             }
             else if (mode == Mode.Dying)
             {
-                danger -= dt;
+                if(!(model.tutorial&&lessons&&lessons.HoldDeath))danger -= dt;
                 if (GameInput.Down(KeyCode.L) && Rewind()) { }
                 else if (danger <= 0) { mode = Mode.Dead; audioBus.Cue(6); }
             }
@@ -163,8 +166,7 @@ namespace BlockNight
                         sample -= .05f; history.Add(model.Capture());
                         if (history.Count > Mathf.CeilToInt(balance.rewindSeconds / .05f) + 1) history.RemoveAt(0);
                     }
-                    AdvanceTutorial();
-                    if (tutorialStep == 6 && GameInput.Down(KeyCode.Return)) Begin(false);
+
                     if (model.hit) { mode = Mode.Dying; danger = feedback?feedback.settings.dyingSeconds:.6f; audioBus.Cue(6); }
                     else if (model.draft) { offers = model.Offers(); hud.SetOffers(offers, model.levels); mode = Mode.Draft; audioBus.Cue(4); }
                 }
@@ -175,7 +177,12 @@ namespace BlockNight
                 if (GameInput.Down(KeyCode.Alpha2)) Choose(1);
                 if (GameInput.Down(KeyCode.Alpha3)) Choose(2);
             }
+            if(model.tutorial&&lessons)lessons.AfterTick(dt);
             if (mode == Mode.Dead && routeScenes) { SceneFlow.Finish(model); return; }
+            Present(dt);
+        }
+
+        void Present(float dt){
             if(feedback)feedback.Focus(mode==Mode.Dying,model.player);
             arena.Render(model);
             arena.TimeEffect(model.slow > 0, mode == Mode.Rewinding, mode == Mode.Dying, dt);
@@ -184,15 +191,5 @@ namespace BlockNight
             audioBus.Tick(model.elapsed, model.WorldRate, mode == Mode.Playing, dt);
         }
 
-        void AdvanceTutorial()
-        {
-            if (tutorialStep == 1 && !model.moving && model.cell != tutorialStart)
-            {
-                tutorialStep = 2;
-                for (int j = 3; j <= 5; j++) model.Spawn(0, CombatModel.Center(new Vector2Int(model.cell.x, j)));
-            }
-            if (tutorialStep == 2 && model.kills > 0 && !model.dashing) tutorialStep = 3;
-            if (tutorialStep == 4 && model.slow <= 0) tutorialStep = 5;
-        }
     }
 }

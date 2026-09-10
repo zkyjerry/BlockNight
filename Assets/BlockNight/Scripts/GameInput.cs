@@ -12,6 +12,8 @@ namespace BlockNight
         static readonly HashSet<KeyCode> held = new HashSet<KeyCode>();
         static readonly HashSet<KeyCode> pressed = new HashSet<KeyCode>();
 #if ENABLE_INPUT_SYSTEM
+        static readonly HashSet<Key> anyHeld = new HashSet<Key>();
+        static bool anyPressed;
         static readonly KeyCode[] Codes = {KeyCode.W,KeyCode.A,KeyCode.S,KeyCode.D,KeyCode.J,KeyCode.K,KeyCode.L,KeyCode.M,KeyCode.Escape,KeyCode.Return,KeyCode.UpArrow,KeyCode.DownArrow,KeyCode.LeftArrow,KeyCode.RightArrow,KeyCode.Alpha1,KeyCode.Alpha2,KeyCode.Alpha3};
         static readonly Key[] Keys = {Key.W,Key.A,Key.S,Key.D,Key.J,Key.K,Key.L,Key.M,Key.Escape,Key.Enter,Key.UpArrow,Key.DownArrow,Key.LeftArrow,Key.RightArrow,Key.Digit1,Key.Digit2,Key.Digit3};
 #endif
@@ -19,15 +21,28 @@ namespace BlockNight
         {
             pressed.Clear();
 #if ENABLE_INPUT_SYSTEM
+            anyPressed=false;
             var keyboard = Keyboard.current;
-            if (keyboard == null) { held.Clear(); return; }
+            if (keyboard == null) { held.Clear(); anyHeld.Clear(); return; }
+            foreach(var key in keyboard.allKeys){if(key==null)continue;bool down=key.isPressed;if(down&&!anyHeld.Contains(key.keyCode))anyPressed=true;if(down)anyHeld.Add(key.keyCode);else anyHeld.Remove(key.keyCode);}
             for (int i = 0; i < Codes.Length; i++)
             {
-                bool down = keyboard[Keys[i]].isPressed;
+                bool down = keyboard[Keys[i]]!=null && keyboard[Keys[i]].isPressed;
                 if (down && !held.Contains(Codes[i])) pressed.Add(Codes[i]);
                 if (down) held.Add(Codes[i]); else held.Remove(Codes[i]);
             }
 #endif
+        }
+        public static bool AnyDown {
+            get {
+#if ENABLE_INPUT_SYSTEM
+                if(anyPressed)return true;
+#endif
+#if ENABLE_LEGACY_INPUT_MANAGER
+                if(Input.anyKeyDown)return true;
+#endif
+                return pressed.Count>0;
+            }
         }
         public static bool Down(KeyCode code)
         {
