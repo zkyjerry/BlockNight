@@ -24,6 +24,7 @@ namespace BlockNight
         public LineRenderer shieldArc;
         public SpriteRenderer[] shockwaves;
         public float cellSize = 1.375f;
+        [Min(.08f)] public float enemyMoveSeconds = .18f;
 
         readonly Color[] colors = { new Color(1, .66f, .1f), new Color(.58f, .35f, 1), new Color(.95f, .9f, .5f), new Color(.3f, 1, .42f) };
         Bloom bloom;
@@ -35,6 +36,8 @@ namespace BlockNight
         float kick, feedbackTime;
         int feedbackChain, ringIndex;
         bool initialized;
+        Vector2[] visualFoePositions;
+        bool[] visualFoeVisible;
         static readonly int[] Counts = {64, 110, 180, 280};
         static readonly float[] Strengths = {.10f, .18f, .28f, .40f};
         static readonly float[] Corners = {.16f, .27f, .40f, .55f};
@@ -62,6 +65,8 @@ namespace BlockNight
             Initialize(); trail.Clear(); shards.Clear();
             cameraTween?.Kill(); shakeCamera.localPosition = cameraRest;
             player.DOKill(); player.localScale = playerScale;
+            foreach (var body in bodies) if (body) body.transform.DOKill();
+            if (visualFoeVisible != null) System.Array.Clear(visualFoeVisible, 0, visualFoeVisible.Length);
             foreach (var ring in shockwaves) { ring.DOKill(); ring.transform.DOKill(); ring.enabled = false; }
             kick = feedbackTime = 0; feedbackChain = 0;
             if(shieldArc)shieldArc.enabled=false;
@@ -118,7 +123,7 @@ namespace BlockNight
             StopShake();cameraTween=shakeCamera.DOShakePosition(.32f,new Vector3(.28f,.28f,0),35,90,false,true).SetUpdate(UpdateType.Late).OnComplete(()=>shakeCamera.localPosition=cameraRest);kick=1;feedbackTime=.65f;feedbackChain=Mathf.Max(feedbackChain,5);
         }
 
-        public void Render(CombatModel m)
+        public void Render(CombatModel m, bool snapEnemyMotion = false)
         {
             Initialize();
             player.position = World(m.player, -.2f);
@@ -133,8 +138,12 @@ namespace BlockNight
             {
                 var f = m.foes[i];
                 bodies[i].enabled = f.active; warnings[i].enabled = f.active && !f.pending; aims[i].enabled = false;
-                if (!f.active) continue;
-                bodies[i].transform.position = World(f.pos);
+                if (!f.active)
+                {
+                    if (visualFoeVisible != null && i < visualFoeVisible.Length) visualFoeVisible[i] = false;
+                    continue;
+                }
+                MoveFoe(i, f.pos, m, snapEnemyMotion);
                 bodies[i].sprite = shapes[f.type];
                 bodies[i].transform.localScale = Vector3.one * (f.type == 3 ? .49f : .56f);
                 bodies[i].transform.rotation = Quaternion.Euler(0, 0, f.pending ? 35 : 0);
@@ -147,7 +156,7 @@ namespace BlockNight
                 float warningProgress=1-Mathf.Clamp01((f.attackWindup?f.timer:f.hopTimer)/Mathf.Max(.001f,f.attackWindup?rules.attackWarning:rules.moveWarning));
                 float growth=Mathf.Lerp(.2f,1,warningProgress);
                 warnings[i].sprite=forming?shapes[f.type]:shapes[0];
-                warnings[i].transform.position=World(targetValid?CombatModel.Center(target):f.pos,0);
+                warnings[i].transform.position=targetValid?World(CombatModel.Center(target),0):new Vector3(bodies[i].transform.position.x,bodies[i].transform.position.y,0);
                 warnings[i].transform.localScale=Vector3.one*(forming?1.15f:targetValid?cellSize*.88f*growth:.7f);
                 warnings[i].color=!forming&&targetValid?new Color(1,.035f,.055f,.32f):new Color(c.r,c.g,c.b,forming?.45f:.08f);
                 if(!forming&&!f.pending&&targetValid){
@@ -165,6 +174,32 @@ namespace BlockNight
             if(shieldArc){shieldArc.enabled=m.dashing&&m.shieldArmed;if(shieldArc.enabled){shieldArc.loop=true;shieldArc.positionCount=48;for(int j=0;j<48;j++){float angle=2*Mathf.PI*j/48f;shieldArc.SetPosition(j,World(m.player+new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*.6f,-.35f));}}}
         }
 
+        void MoveFoe(int index, Vector2 logicPosition, CombatModel model, bool snap)
+        {
+            if (visualFoePositions == null || visualFoePositions.Length != bodies.Length)
+            {
+                visualFoePositions = new Vector2[bodies.Length];
+                visualFoeVisible = new bool[bodies.Length];
+            }
+
+            var body = bodies[index];
+            var target = World(logicPosition);
+            if (!visualFoeVisible[index] || snap)
+            {
+                body.transform.DOKill();
+                body.transform.position = target;
+            }
+            else if ((visualFoePositions[index] - logicPosition).sqrMagnitude > .000001f)
+            {
+                body.transform.DOKill();
+                float duration = Mathf.Clamp(enemyMoveSeconds / Mathf.Max(.06f, model.WorldRate), .12f, .7f);
+                body.transform.DOMove(target, duration).SetEase(Ease.OutQuad);
+            }
+
+            visualFoePositions[index] = logicPosition;
+            visualFoeVisible[index] = true;
+        }
+
         public void TimeEffect(bool slow, bool rewind, bool death, float dt)
         {
             Initialize();
@@ -180,6 +215,6 @@ namespace BlockNight
             vignette.intensity.value = Mathf.Lerp(vignette.intensity.value, targetIntensity, Mathf.Clamp01(dt * 18));
         }
 
-        void OnDestroy() { cameraTween?.Kill(); if (shakeCamera) shakeCamera.localPosition = cameraRest; }
+        void OnDestroy() { cameraTween?.Kill(); foreach (var body in bodies) if (body) body.transform.DOKill(); if (shakeCamera) shakeCamera.localPosition = cameraRest; }
     }
 }

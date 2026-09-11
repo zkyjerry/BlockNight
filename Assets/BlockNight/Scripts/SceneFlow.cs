@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace BlockNight
 {
@@ -9,18 +8,30 @@ namespace BlockNight
         public static bool NextRunTutorial;
         public static int Score, Kills, BestChain;
         public static float Elapsed;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        static void Reset() { NextRunTutorial = false; Score = Kills = BestChain = 0; Elapsed = 0; }
+        static void Reset()
+        {
+            NextRunTutorial = false;
+            Score = Kills = BestChain = 0;
+            Elapsed = 0;
+        }
+
         public static void StartRun(bool tutorial)
         {
             NextRunTutorial = tutorial;
-            SceneManager.LoadScene(Gameplay);
+            SceneTransition.Load(Gameplay);
         }
+
         public static void Finish(CombatModel model)
         {
-            Score = model.score; Kills = model.kills; BestChain = model.bestChain; Elapsed = model.elapsed;
-            SceneManager.LoadScene(GameOver);
+            Score = model.score;
+            Kills = model.kills;
+            BestChain = model.bestChain;
+            Elapsed = model.elapsed;
+            SceneTransition.Load(GameOver);
         }
-        public static void ToMenu() => SceneManager.LoadScene(MainMenu);
+
+        public static void ToMenu() => SceneTransition.Load(MainMenu);
     }
 }

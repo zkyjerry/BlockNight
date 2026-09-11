@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3997adb2955f4d7dab6c0bd117bbcda8, type: 3}
+  m_Name: SceneTransitionSettings
+  m_EditorClassIdentifier: 
+  scenes:
+  - scene: MainMenu
+    color: {r: 0.16260235, g: 0.5471698, b: 0.48412594, a: 0}
+  - scene: BlockNight
+    color: {r: 0.30750266, g: 0.2966358, b: 0.6226415, a: 0}
+  - scene: GameOver
+    color: {r: 0.5566038, g: 0.14440194, b: 0.14440194, a: 0}
+  fallback: {r: 0.16260235, g: 0.5471698, b: 0.48412594, a: 0}
+  coverSeconds: 1
+  revealSeconds: 2

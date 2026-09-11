@@ -10,7 +10,7 @@ public class GameHUD:MonoBehaviour {
  public Button startButton,learnButton,resumeButton,retryButton,homeButton,skipButton;public Button[] cards;public TMP_Text[] cardTexts;
  GameDirector director;float bannerUntil;
  public static readonly string[] Names={"超驱","轻步","时井","快充","深忆","动量","复利","静域","残像","护盾","积分补给"};
- public static readonly string[] Descriptions={"冲刺速度 +12%\n更快穿越战场。","走格速度 +20%\n更快调整下一次斩击位置。","慢时间持续 +0.6 秒\n延长爆发前的悬念。","慢时间冷却 -1.5 秒\n更频繁地折叠时间。","回溯冷却 -2 秒\n让下一次机会更早到来。","击杀推进强化 +0.35 秒\n以战养战，加速成长。","击杀积分 +25%\n每一次斩击都更值钱。","慢速世界倍率 -4%\n让危险格进一步减速。","回溯后保护 +0.25 秒\n留出改写选择的空间。","冲刺时免疫一次任意方向伤害\n消耗后可再次获得，最多一个。","积分 +2,500\n所有系统已强化至满级。"};
+ public static readonly string[] Descriptions={"冲刺速度 +12%","走格速度 +20%","慢时间持续 +0.6 秒","慢时间冷却 -1.5 秒","回溯冷却 -2 秒","击杀推进强化 +0.35 秒","击杀积分 +25%","慢速世界倍率 -4%","回溯后保护 +0.25 秒","冲刺时免疫一次任意方向伤害\n消耗后可再次获得，最多一个。","积分 +2,500"};
  public void Bind(GameDirector d){director=d;if(startButton)startButton.onClick.AddListener(()=>d.Begin(false,true));if(learnButton)learnButton.onClick.AddListener(()=>d.Begin(true,true));resumeButton.onClick.AddListener(d.Pause);if(retryButton)retryButton.onClick.AddListener(()=>d.Begin(false,true));if(homeButton)homeButton.onClick.AddListener(d.Home);skipButton.onClick.AddListener(()=>d.Begin(false,true));for(int i=0;i<3;i++){int k=i;cards[i].onClick.AddListener(()=>d.Choose(k));}}
  public void SetOffers(int[] ids,int[] levels){for(int i=0;i<3;i++){int id=ids[i];cardTexts[i].text="0"+(i+1)+" / 强化\n\n"+Names[id]+"\n\n"+Descriptions[id]+"\n\n"+(id==9?"持有上限 1 个":id<10?"等级 "+(levels[id]+1)+" / "+CombatModel.MaxLevel(id):"补给");}}
  public void RewardPunch(){progress.transform.DOKill();progress.transform.localScale=Vector3.one;progress.transform.DOPunchScale(new Vector3(0,.28f,0),.18f,1);}

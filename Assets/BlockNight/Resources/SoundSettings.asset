@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5de82af8fb37498dbcd264a1513dba90, type: 3}
+  m_Name: SoundSettings
+  m_EditorClassIdentifier: 
+  tracks:
+  - scene: MainMenu
+    clip: {fileID: 8300000, guid: c557db148b86f43d7a75ec5da8a4f0cf, type: 3}
+    volume: 0.7
+    loop: 1
+  - scene: BlockNight
+    clip: {fileID: 8300000, guid: a3ee9a98d725241569578b3a18d0e2e5, type: 3}
+    volume: 0.7
+    loop: 1
+  - scene: GameOver
+    clip: {fileID: 8300000, guid: 5401360e3f7f74c9ba831e1ef7ea3ada, type: 3}
+    volume: 0.55
+    loop: 1
+  musicVolume: 0.297
+  effectsVolume: 1
+  fadeSeconds: 0.8
+  cueVolumes:
+  - 0.7
+  - 0.7
+  - 0.55
+  - 0.7
+  - 0.7
+  - 0.7
+  - 0.7
+  - 0.35
+  proceduralBeats: 1

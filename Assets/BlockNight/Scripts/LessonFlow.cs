@@ -34,7 +34,7 @@ namespace BlockNight {
   public void AfterTick(float dt){
    var m=director.model;if(!m.tutorial)return;director.tutorialStep=(int)stage;
    if(stage==LessonStage.Turn&&m.direction==Vector2.right){stage=LessonStage.Walk;Say(new[]{"很好，已经朝右。\n再按一次 D，向右走一格。"});}
-   else if(stage==LessonStage.Walk&&!m.moving&&m.cell.x==4){stage=LessonStage.Slash;for(int y=3;y<=5;y++){m.Spawn(0,CombatModel.Center(new Vector2Int(4,y)));}Prompt("朝上按 W，再按 J 冲刺斩击。\n普通走格不能击杀；冲刺中可用 WASD 转向。");}
+   else if(stage==LessonStage.Walk&&!m.moving&&m.cell.x==4){stage=LessonStage.Slash;m.Spawn(0,CombatModel.Center(new Vector2Int(4,4)));m.Spawn(0,CombatModel.Center(new Vector2Int(5,4)));m.Spawn(0,CombatModel.Center(new Vector2Int(6,4)));Prompt("朝上按 W，再按 J 冲刺。\n接近第一个敌人时按 D：抵达它所在格后会转向右边，完成三连斩。");}
    else if(stage==LessonStage.Slash&&m.kills>=3&&!m.dashing){Say(new[]{"一次冲刺可以贯穿多个敌人。\n接下来观察敌人的攻击预警。"},SetupSlow);stage=LessonStage.ObserveNormal;}
    else if(stage==LessonStage.ObserveNormal&&!DialogueWaiting){stageTime+=dt;if(stageTime>=.7f){stage=LessonStage.SlowKey;Prompt("第二课 / 时间折叠\n红框正在正常速度变大。现在按 K，比较它的速度。");}}
    else if(stage==LessonStage.SlowKey){if(m.foes[0].timer<.3f){m.foes[0].timer=slowEnemy.rules.attackWarning;m.foes[0].attackWindup=true;}}

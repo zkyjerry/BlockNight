@@ -184,7 +184,7 @@ namespace BlockNight
 
         void Present(float dt){
             if(feedback)feedback.Focus(mode==Mode.Dying,model.player);
-            arena.Render(model);
+            arena.Render(model, mode == Mode.Rewinding);
             arena.TimeEffect(model.slow > 0, mode == Mode.Rewinding, mode == Mode.Dying, dt);
             if(feedback)feedback.Render(model,dt);
             hud.Render(this, history.Count >= 11);

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using DG.Tweening;
 using UnityEditor;
 namespace BlockNight.Editor {
  public static class FeedbackChecks {
@@ -16,6 +17,7 @@ namespace BlockNight.Editor {
    d.Begin(false);m=d.model;m.tutorial=true;m.Spawn(0,CombatModel.Center(new Vector2Int(7,7)));m.StartUpgradeWave(.65f);m.Step(.1f);var saved=m.Capture();m.Step(.2f);m.Restore(saved);Check(m.upgradeWaveRadius==saved.upgradeWaveRadius&&m.upgradeWaveActive,"wave included in rewind snapshot");
    bool old=f.settings.upgradeShockwave;try{foreach(bool enabled in new[]{false,true}){f.settings.upgradeShockwave=enabled;d.Begin(false);d.model.grace=10;d.model.reward=0;d.Tick(.01f);Check(d.mode==Mode.Draft,"draft opens for switch check");d.Choose(0);Check(d.model.upgradeWaveActive==enabled,"SO switch controls wave");}}finally{f.settings.upgradeShockwave=old;}
    d.Begin(false);m=d.model;m.tutorial=true;m.Spawn(0,CombatModel.Center(new Vector2Int(2,5)));m.foes[0].age=3;m.foes[0].attackWindup=true;m.foes[0].attackTarget=new Vector2Int(3,5);m.foes[0].timer=m.RulesFor(0).attackWarning;d.arena.Render(m);float start=Vector3.Distance(d.arena.aims[0].GetPosition(0),d.arena.aims[0].GetPosition(1));m.foes[0].timer=0;d.arena.Render(m);float end=Vector3.Distance(d.arena.aims[0].GetPosition(0),d.arena.aims[0].GetPosition(1));Check(end>start*4.9f,"warning grows fivefold");
+   d.Begin(false);m=d.model;m.tutorial=true;m.Spawn(0,CombatModel.Center(new Vector2Int(2,5)));m.foes[0].age=3;d.arena.Render(m);m.foes[0].pos=CombatModel.Center(new Vector2Int(3,5));d.arena.Render(m);Check(DOTween.IsTweening(d.arena.bodies[0].transform)&&Vector3.Distance(d.arena.bodies[0].transform.position,d.arena.World(m.foes[0].pos))>.01f,"enemy grid movement uses DOTween instead of snapping");
    m.reward=m.settings.upgradeSeconds;f.Render(m,0);Check(f.countdownRing.positionCount==129&&f.RemainingFraction==1,"full border");m.reward=m.settings.upgradeSeconds*.5f;f.Render(m,0);Check(f.countdownRing.positionCount==65&&f.countdownRing.GetPosition(0).y<0,"half countdown disappears counterclockwise");m.reward=0;f.Render(m,0);Check(!f.countdownRing.enabled,"zero hides border");
    d.Begin(false);m=d.model;m.tutorial=true;m.slowCD=.02f;m.rewindCD=.03f;int k=f.slowReadyCount,l=f.rewindReadyCount;d.Tick(.04f);Check(f.slowReadyCount==k+1&&f.rewindReadyCount==l+1,"each ready edge fires");for(int i=0;i<30;i++)d.Tick(.02f);Check(f.slowReadyCount==k+1&&f.rewindReadyCount==l+1&&!f.readyFlash.enabled,"no repeated ready flash");
    d.arena.ClearEffects();d.arena.ShieldBreak(m.player);Check(d.arena.shards.particleCount>=220&&d.arena.shockwaves.Count(x=>x.enabled)>=2,"strong shield break");
