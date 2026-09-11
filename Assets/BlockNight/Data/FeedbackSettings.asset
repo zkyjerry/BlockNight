@@ -21,5 +21,7 @@ MonoBehaviour:
   focusSize: 4.6
   focusSeconds: 0.25
   restoreSeconds: 0.35
+  shatterSeconds: 1.7
+  shatterParticles: 760
   readyFlashAlpha: 0.14
   readyFlashSeconds: 0.42

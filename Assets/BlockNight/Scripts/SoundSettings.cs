@@ -15,8 +15,8 @@ namespace BlockNight {
   [Range(0,1)] public float effectsVolume=1f;
   [Header("转场淡出淡入秒数；实际时长不超过遮盖/揭开动画")]
   [Min(0)] public float fadeSeconds=.8f;
-  [Header("音效音量：0 开局 1 走格 2 击杀 3 连斩破盾 4 状态 5 时间折叠 6 死亡 7 节拍")]
-  [Range(0,1)] public float[] cueVolumes={.7f,.7f,.55f,.7f,.7f,.7f,.7f,.35f};
+  [Header("音效音量：0 开局 1 走格 2 击杀 3 连斩破盾 4 状态 5 时间折叠 6 死亡 7 节拍 8 按钮悬浮 9 按钮点击 10 破碎爆炸")]
+  [Range(0,1)] public float[] cueVolumes={.7f,.7f,.55f,.7f,.7f,.7f,.7f,.35f,.28f,.5f,.9f};
   [Tooltip("场景没有配置 BGM 时，回落到内置合成节拍层")]
   public bool proceduralBeats=true;
   public Track TrackFor(string scene){

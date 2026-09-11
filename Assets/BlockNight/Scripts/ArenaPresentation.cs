@@ -65,6 +65,8 @@ namespace BlockNight
             Initialize(); trail.Clear(); shards.Clear();
             cameraTween?.Kill(); shakeCamera.localPosition = cameraRest;
             player.DOKill(); player.localScale = playerScale;
+            playerSprite.enabled = true; facingMarker.enabled = true;
+            if (playerLight) playerLight.enabled = true;
             foreach (var body in bodies) if (body) body.transform.DOKill();
             if (visualFoeVisible != null) System.Array.Clear(visualFoeVisible, 0, visualFoeVisible.Length);
             foreach (var ring in shockwaves) { ring.DOKill(); ring.transform.DOKill(); ring.enabled = false; }
@@ -114,6 +116,45 @@ namespace BlockNight
         }
 
         public void StopShake(){Initialize();cameraTween?.Kill();shakeCamera.localPosition=cameraRest;}
+
+        // Missed the last rewind window: the camera is already restoring, so the burst carries the moment alone.
+        public void PlayerShatter(Vector2 p, int count)
+        {
+            Initialize();
+            StopShake();
+            player.DOKill(); player.localScale = playerScale;
+            playerSprite.enabled = false; facingMarker.enabled = false;
+            if (playerLight) playerLight.enabled = false;
+            trail.emitting = false; trail.Clear();
+            if (shieldArc) shieldArc.enabled = false;
+            if (!shards.isPlaying) shards.Play();
+            count = Mathf.Max(120, count);
+            for (int i = 0; i < count; i++)
+            {
+                float angle = 2 * Mathf.PI * i / count + Random.value * .2f;
+                var outward = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                float speed = Mathf.Lerp(1.4f, 12f, Random.value * Random.value);
+                shards.Emit(new ParticleSystem.EmitParams
+                {
+                    position = World(p + outward * Random.Range(0f, .45f), -.3f),
+                    velocity = outward * speed + Random.insideUnitCircle * 1.4f,
+                    startColor = Color.Lerp(new Color(.25f, 1, .89f), Color.white, Random.value * Random.value) * Random.Range(2f, 3.6f),
+                    startSize = Random.Range(.05f, .27f),
+                    startLifetime = Random.Range(.45f, 1.5f)
+                }, 1);
+            }
+            for (int i = 0; i < 3; i++)
+            {
+                var ring = shockwaves[ringIndex++ % shockwaves.Length];
+                ring.DOKill(); ring.transform.DOKill(); ring.enabled = true;
+                ring.transform.position = World(p, -.4f);
+                ring.transform.localScale = Vector3.one * (.3f + i * .35f);
+                ring.color = new Color(.35f, 1, .92f) * (2.6f - i * .5f);
+                ring.transform.DOScale(5.5f + i * 2.2f, .55f + i * .18f).SetEase(Ease.OutCubic).SetDelay(i * .09f);
+                ring.DOFade(0, .6f + i * .18f).SetDelay(i * .09f).OnComplete(() => ring.enabled = false);
+            }
+            kick = 1; feedbackTime = 0; feedbackChain = 0;
+        }
 
         public void ShieldBreak(Vector2 p)
         {

@@ -44,6 +44,6 @@ Material:
     - _SiliceCount: 6.15
     - _Size: 0.17
     m_Colors:
-    - _GetScreenSize: {r: 806, g: 1440, b: 0, a: 0}
-    - _MainColor: {r: 0.30750266, g: 0.2966358, b: 0.6226415, a: 0}
+    - _GetScreenSize: {r: 2722, g: 1440, b: 0, a: 0}
+    - _MainColor: {r: 0.16260235, g: 0.5471698, b: 0.48412594, a: 0}
   m_BuildTextureStacks: []

@@ -22,7 +22,7 @@ namespace BlockNight
         public int tutorialStep = -1;
         public float danger;
         readonly List<Frame> history = new List<Frame>();
-        float sample, rewindClock;
+        float sample, rewindClock, deathClock;
         int rewindFrom;
         int[] offers;
         bool returnTutorial;
@@ -67,6 +67,16 @@ namespace BlockNight
         }
 
         public void ClearHistory(){history.Clear();sample=0;}
+
+        // Rewind window expired: release the camera back to rest, then blow the player apart before the result scene.
+        void Shatter()
+        {
+            mode = Mode.Dead; audioBus.Explode();
+            var settings = feedback ? feedback.settings : null;
+            deathClock = settings ? settings.shatterSeconds : 1.7f;
+            if (feedback) feedback.Focus(false, model.player);
+            arena.PlayerShatter(model.player, settings ? settings.shatterParticles : 760);
+        }
 
         void PlacePlayer(Vector2Int c)
         {
@@ -145,7 +155,7 @@ namespace BlockNight
             {
                 if(!(model.tutorial&&lessons&&lessons.HoldDeath))danger -= dt;
                 if (GameInput.Down(KeyCode.L) && Rewind()) { }
-                else if (danger <= 0) { mode = Mode.Dead; audioBus.Cue(6); }
+                else if (danger <= 0) Shatter();
             }
             else if (mode == Mode.Playing)
             {
@@ -178,7 +188,11 @@ namespace BlockNight
                 if (GameInput.Down(KeyCode.Alpha3)) Choose(2);
             }
             if(model.tutorial&&lessons)lessons.AfterTick(dt);
-            if (mode == Mode.Dead && routeScenes) { SceneFlow.Finish(model); return; }
+            if (mode == Mode.Dead)
+            {
+                if (deathClock > 0) deathClock -= dt;
+                if (routeScenes && deathClock <= 0) { SceneFlow.Finish(model); return; }
+            }
             Present(dt);
         }
 
