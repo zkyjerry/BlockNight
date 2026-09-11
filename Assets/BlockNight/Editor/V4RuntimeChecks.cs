@@ -22,7 +22,7 @@ namespace BlockNight.Editor {
   public static void MenuAnimation(){
    Check(EditorApplication.isPlaying,"requires Play Mode");var menu=UnityEngine.Object.FindObjectOfType<MenuController>();Check(menu,"requires menu scene");var labels=menu.GetComponentsInChildren<TMP_Text>(true);
    foreach(var label in labels){Check(!label.GetComponent<Febucci.UI.TextAnimator>()&&!label.GetComponent<Febucci.UI.TextAnimatorPlayer>(),"no text animation components");Check(label.font&&label.font.name=="FZXS12 TMP","user font");Check(label.maxVisibleCharacters>=label.text.Length,"all text visible");}
-   if(menu.isGameOver)Check(menu.resultText.text.Contains(SceneFlow.Score.ToString("N0")),"correct results");Check(menu.primaryButton.interactable&&menu.secondaryButton.interactable,"buttons usable");
+   if(menu.isGameOver)Check(menu.resultText.text.Contains(SceneFlow.Score.ToString("N0")),"correct results");Check(menu.primaryButton.interactable&&menu.secondaryButton.interactable,"buttons usable");if(menu.quitButton)Check(menu.quitButton.interactable,"quit usable");
    File.WriteAllText("Docs/QA/"+menu.gameObject.scene.name.ToLower()+"-static-v5.txt","PASS: "+labels.Length+" static TMP labels, no TextAnimator, correct font, complete text, usable buttons and result binding.");
   }
  }

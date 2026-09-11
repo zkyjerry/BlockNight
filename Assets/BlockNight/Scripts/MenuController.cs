@@ -8,13 +8,14 @@ namespace BlockNight
     public class MenuController : MonoBehaviour
     {
         public bool isGameOver;
-        public Button primaryButton, secondaryButton;
+        public Button primaryButton, secondaryButton, quitButton;
         public TMP_Text resultText;
         public SynthAudio audioBus;
         public TextAnimatorPlayer titleAnimation, resultAnimation, primaryAnimation, secondaryAnimation;
         void Awake()
         {
             primaryButton.onClick.AddListener(() => SceneFlow.StartRun(false));
+            if (quitButton) quitButton.onClick.AddListener(SceneFlow.Quit);
             if (isGameOver)
             {
                 secondaryButton.onClick.AddListener(SceneFlow.ToMenu);

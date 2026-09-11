@@ -56,6 +56,6 @@ Material:
     m_Colors:
     - _BrightColor: {r: 0.069419734, g: 0.121319436, b: 0.3773585, a: 0}
     - _DarkColor: {r: 0.078431375, g: 0.07058824, b: 0.08627451, a: 0}
-    - _GetScreenSize: {r: 2560, g: 1440, b: 0, a: 0}
+    - _GetScreenSize: {r: 2172, g: 1300, b: 0, a: 0}
     - _Speed: {r: -0.1, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

@@ -14,8 +14,8 @@ namespace BlockNight
 #if ENABLE_INPUT_SYSTEM
         static readonly HashSet<Key> anyHeld = new HashSet<Key>();
         static bool anyPressed;
-        static readonly KeyCode[] Codes = {KeyCode.W,KeyCode.A,KeyCode.S,KeyCode.D,KeyCode.J,KeyCode.K,KeyCode.L,KeyCode.M,KeyCode.Escape,KeyCode.Return,KeyCode.UpArrow,KeyCode.DownArrow,KeyCode.LeftArrow,KeyCode.RightArrow,KeyCode.Alpha1,KeyCode.Alpha2,KeyCode.Alpha3};
-        static readonly Key[] Keys = {Key.W,Key.A,Key.S,Key.D,Key.J,Key.K,Key.L,Key.M,Key.Escape,Key.Enter,Key.UpArrow,Key.DownArrow,Key.LeftArrow,Key.RightArrow,Key.Digit1,Key.Digit2,Key.Digit3};
+        static readonly KeyCode[] Codes = {KeyCode.W,KeyCode.A,KeyCode.S,KeyCode.D,KeyCode.J,KeyCode.K,KeyCode.L,KeyCode.M,KeyCode.U,KeyCode.I,KeyCode.O,KeyCode.Escape,KeyCode.Return,KeyCode.UpArrow,KeyCode.DownArrow,KeyCode.LeftArrow,KeyCode.RightArrow,KeyCode.Alpha1,KeyCode.Alpha2,KeyCode.Alpha3};
+        static readonly Key[] Keys = {Key.W,Key.A,Key.S,Key.D,Key.J,Key.K,Key.L,Key.M,Key.U,Key.I,Key.O,Key.Escape,Key.Enter,Key.UpArrow,Key.DownArrow,Key.LeftArrow,Key.RightArrow,Key.Digit1,Key.Digit2,Key.Digit3};
 #endif
         public static void Poll()
         {

@@ -183,9 +183,9 @@ namespace BlockNight
             }
             else if (mode == Mode.Draft)
             {
-                if (GameInput.Down(KeyCode.Alpha1)) Choose(0);
-                if (GameInput.Down(KeyCode.Alpha2)) Choose(1);
-                if (GameInput.Down(KeyCode.Alpha3)) Choose(2);
+                if (GameInput.Down(KeyCode.Alpha1) || GameInput.Down(KeyCode.U)) Choose(0);
+                if (GameInput.Down(KeyCode.Alpha2) || GameInput.Down(KeyCode.I)) Choose(1);
+                if (GameInput.Down(KeyCode.Alpha3) || GameInput.Down(KeyCode.O)) Choose(2);
             }
             if(model.tutorial&&lessons)lessons.AfterTick(dt);
             if (mode == Mode.Dead)

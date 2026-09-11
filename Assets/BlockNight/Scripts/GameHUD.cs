@@ -7,12 +7,12 @@ namespace BlockNight {
 public class GameHUD:MonoBehaviour {
  public TMP_Text countdown,score,time,chain,slowLabel,rewindLabel,status,banner,tutorialText,deathScore;
  public Image progress,slowFill,rewindFill;public GameObject readouts;public GameObject titlePanel,pausePanel,draftPanel,deathPanel,tutorialPanel;
- public Button startButton,learnButton,resumeButton,retryButton,homeButton,skipButton;public Button[] cards;public TMP_Text[] cardTexts;
+ public Button startButton,learnButton,resumeButton,retryButton,homeButton,skipButton,quitButton;public Button[] cards;public TMP_Text[] cardTexts;
  GameDirector director;float bannerUntil;
  public static readonly string[] Names={"超驱","轻步","时井","快充","深忆","动量","复利","静域","残像","护盾","积分补给"};
  public static readonly string[] Descriptions={"冲刺速度 +12%","走格速度 +20%","慢时间持续 +0.6 秒","慢时间冷却 -1.5 秒","回溯冷却 -2 秒","击杀推进强化 +0.35 秒","击杀积分 +25%","慢速世界倍率 -4%","回溯后保护 +0.25 秒","冲刺时免疫一次任意方向伤害\n消耗后可再次获得，最多一个。","积分 +2,500"};
- public void Bind(GameDirector d){director=d;if(startButton)startButton.onClick.AddListener(()=>d.Begin(false,true));if(learnButton)learnButton.onClick.AddListener(()=>d.Begin(true,true));resumeButton.onClick.AddListener(d.Pause);if(retryButton)retryButton.onClick.AddListener(()=>d.Begin(false,true));if(homeButton)homeButton.onClick.AddListener(d.Home);skipButton.onClick.AddListener(()=>d.Begin(false,true));for(int i=0;i<3;i++){int k=i;cards[i].onClick.AddListener(()=>d.Choose(k));}}
- public void SetOffers(int[] ids,int[] levels){for(int i=0;i<3;i++){int id=ids[i];cardTexts[i].text="0"+(i+1)+" / 强化\n\n"+Names[id]+"\n\n"+Descriptions[id]+"\n\n"+(id==9?"持有上限 1 个":id<10?"等级 "+(levels[id]+1)+" / "+CombatModel.MaxLevel(id):"补给");}}
+ public void Bind(GameDirector d){director=d;if(startButton)startButton.onClick.AddListener(()=>d.Begin(false,true));if(learnButton)learnButton.onClick.AddListener(()=>d.Begin(true,true));resumeButton.onClick.AddListener(d.Pause);if(retryButton)retryButton.onClick.AddListener(()=>d.Begin(false,true));if(homeButton)homeButton.onClick.AddListener(d.Home);if(quitButton)quitButton.onClick.AddListener(SceneFlow.Quit);skipButton.onClick.AddListener(()=>d.Begin(false,true));for(int i=0;i<3;i++){int k=i;cards[i].onClick.AddListener(()=>d.Choose(k));}}
+ public void SetOffers(int[] ids,int[] levels){for(int i=0;i<3;i++){int id=ids[i];cardTexts[i].text="UIO"[i]+" / 强化\n\n"+Names[id]+"\n\n"+Descriptions[id]+"\n\n"+(id==9?"持有上限 1 个":id<10?"等级 "+(levels[id]+1)+" / "+CombatModel.MaxLevel(id):"补给");}}
  public void RewardPunch(){progress.transform.DOKill();progress.transform.localScale=Vector3.one;progress.transform.DOPunchScale(new Vector3(0,.28f,0),.18f,1);}
  public void Banner(string s){banner.text=s;bannerUntil=Time.unscaledTime+1.7f;}
  public void Render(GameDirector d,bool historyReady){var m=d.model;readouts.SetActive(d.mode!=Mode.Title);if(titlePanel)titlePanel.SetActive(d.mode==Mode.Title);pausePanel.SetActive(d.mode==Mode.Paused);draftPanel.SetActive(d.mode==Mode.Draft);if(deathPanel)deathPanel.SetActive(d.mode==Mode.Dead&&!d.routeScenes);tutorialPanel.SetActive(m.tutorial&&!d.lessons&&d.mode!=Mode.Title);
