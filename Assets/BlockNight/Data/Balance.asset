@@ -20,6 +20,10 @@ MonoBehaviour:
   slowCooldown: 11
   rewindSeconds: 3
   rewindCooldown: 16
+  maxCharges: 3
+  itemInterval: 4.5
+  itemChance: 0.35
+  rewindPickupShare: 0.5
   upgradeSeconds: 60
   killSeconds: 1.2
   spawnWarning: 1.2

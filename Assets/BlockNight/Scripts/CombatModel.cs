@@ -36,19 +36,21 @@ namespace BlockNight
         public float travel;
         public Foe[] foes;
         public Shot[] shots;
-        public float elapsed, spawn, reward;
-        public int score, kills, chain, bestChain;
+        public float elapsed, spawn, reward, itemSpawn;
+        public int score, kills, chain, bestChain, chargeCount;
         public bool upgradeWaveActive;
         public Vector2 upgradeWaveOrigin;
         public float upgradeWaveRadius, upgradeWaveDuration, upgradeWaveMaxRadius;
         public int upgradeWaveKills;
         public uint rng;
         public int phaseIndex;
+        public Pickup[] pickups;
+        public int[] charges;
     }
 
     public class CombatModel
     {
-        public const int GridSize = 8, Capacity = 36, Bullets = 80;
+        public const int GridSize = 8, Capacity = 36, Bullets = 80, PickupCapacity = 8, MaxStored = 3;
         public Vector2 player;
         public Vector2 direction = Vector2.up;
         public Vector2 queuedDirection;
@@ -60,8 +62,11 @@ namespace BlockNight
         public float travel;
         public Foe[] foes = new Foe[Capacity];
         public Shot[] shots = new Shot[Bullets];
-        public float elapsed, spawn = 1.5f, reward, slow, slowCD, rewindCD, grace;
-        public int score, kills, chain, bestChain;
+        public float elapsed, spawn = 1.5f, reward, slow, slowCD, rewindCD, grace, itemSpawn = 2.2f;
+        public int score, kills, chain, bestChain, chargeCount;
+        public Pickup[] pickups = new Pickup[PickupCapacity];
+        public int[] charges = new int[MaxStored];
+        public event Action<PickupKind> Stored;
         public uint rng = 7193;
         public bool hit, draft, tutorial, tutorialEnemyActions;
         public int[] levels = new int[10];
@@ -149,7 +154,7 @@ namespace BlockNight
 
         public bool Slow()
         {
-            if (slow > 0 || slowCD > 0 || hit || draft) return false;
+            if (slow > 0 || hit || draft || !ConsumeCharge(PickupKind.时间暂停)) return false;
             slow = settings.slowSeconds + .6f * levels[2];
             return true;
         }
@@ -164,6 +169,42 @@ namespace BlockNight
         {
             for (int i = 0; i < foes.Length; i++)
                 if (i != except && foes[i].active && CellAt(foes[i].pos) == c) return true;
+            return false;
+        }
+        public bool PickupAt(Vector2Int c)
+        {
+            for (int i = 0; i < pickups.Length; i++)
+                if (pickups[i].active && pickups[i].cell == c) return true;
+            return false;
+        }
+        public int ChargeOf(PickupKind kind)
+        {
+            int n = 0;
+            for (int i = 0; i < chargeCount; i++) if (charges[i] == (int)kind) n++;
+            return n;
+        }
+        public bool HasCharge(PickupKind kind)
+        {
+            for (int i = 0; i < chargeCount; i++) if (charges[i] == (int)kind) return true;
+            return false;
+        }
+        public bool GrantCharge(PickupKind kind)
+        {
+            int cap = settings ? Mathf.Clamp(settings.maxCharges, 1, MaxStored) : MaxStored;
+            if (chargeCount >= cap) return false;
+            charges[chargeCount++] = (int)kind;
+            Stored?.Invoke(kind);
+            return true;
+        }
+        public bool ConsumeCharge(PickupKind kind)
+        {
+            for (int i = 0; i < chargeCount; i++)
+                if (charges[i] == (int)kind)
+                {
+                    for (int j = i; j < chargeCount - 1; j++) charges[j] = charges[j + 1];
+                    chargeCount--;
+                    return true;
+                }
             return false;
         }
 
@@ -331,7 +372,7 @@ namespace BlockNight
             for (int x = 0; x < 8; x++) for (int y = 0; y < 8; y++)
             {
                 var c = new Vector2Int(x, y);
-                if (Mathf.Abs(x - cell.x) + Mathf.Abs(y - cell.y) >= 2 && !Occupied(c)) available.Add(c);
+                if (Mathf.Abs(x - cell.x) + Mathf.Abs(y - cell.y) >= 2 && !Occupied(c) && !PickupAt(c)) available.Add(c);
             }
             int count = Mathf.Min(phase.spawnCount, Capacity, available.Count);
             for (int i = 0; i < count; i++)
@@ -343,17 +384,46 @@ namespace BlockNight
             }
         }
 
+        void SpawnItem(float wd)
+        {
+            itemSpawn -= wd;
+            if (itemSpawn > 0) return;
+            itemSpawn = Mathf.Max(.8f, settings.itemInterval - .45f * levels[3]);
+            int live = 0;
+            for (int i = 0; i < pickups.Length; i++) if (pickups[i].active) live++;
+            if (live >= 3 || NextRandom() > settings.itemChance) return;
+            var available = new List<Vector2Int>();
+            for (int x = 0; x < 8; x++) for (int y = 0; y < 8; y++)
+            {
+                var c = new Vector2Int(x, y);
+                if (Mathf.Abs(x - cell.x) + Mathf.Abs(y - cell.y) >= 2 && !Occupied(c) && !PickupAt(c)) available.Add(c);
+            }
+            if (available.Count == 0) return;
+            var cellChoice = available[(int)(NextRandom() * available.Count)];
+            var kind = NextRandom() < settings.rewindPickupShare ? PickupKind.时间回溯 : PickupKind.时间暂停;
+            for (int i = 0; i < pickups.Length; i++)
+                if (!pickups[i].active) { pickups[i] = new Pickup { active = true, kind = kind, cell = cellChoice }; return; }
+        }
+
+        void CollectPickups()
+        {
+            for (int i = 0; i < pickups.Length; i++)
+            {
+                if (!pickups[i].active || pickups[i].cell != cell) continue;
+                if (!GrantCharge(pickups[i].kind)) continue;
+                pickups[i].active = false;
+            }
+        }
+
         public void Step(float dt)
         {
             if (hit || draft) return;
             grace = Mathf.Max(0, grace - dt);
-            slowCD = Mathf.Max(0, slowCD - dt);
-            rewindCD = Mathf.Max(0, rewindCD - dt);
             float wd = dt * WorldRate;
             if (slow > 0)
             {
                 slow -= dt;
-                if (slow <= 0) { slow = 0; slowCD = Mathf.Max(4, settings.slowCooldown - 1.5f * levels[3]); Release(); }
+                if (slow <= 0) { slow = 0; Release(); }
             }
             if (!tutorial)
             {
@@ -367,12 +437,14 @@ namespace BlockNight
                     spawn = Mathf.Max(.2f, phase.spawnInterval);
                     SpawnBatch(phase);
                 }
+                SpawnItem(wd);
             }
             StepUpgradeWave(dt);
             for (int i = 0; i < foes.Length; i++) if (foes[i].active && !foes[i].pending) foes[i].age += wd;
             dashDuringStep=dashing;shieldAtStepStart=shieldArmed;
             movementPath.Clear();movementPath.Add(player);
             AdvancePlayer(dt);if(movementPath.Count==1)movementPath.Add(player);
+            CollectPickups();
             for(int i=0;i<foes.Length;i++)StepEnemy(i,wd);
             for(int i=0;i<shots.Length;i++)if(shots[i].active){var strike=shots[i];StepStrike(ref strike,wd);shots[i]=strike;}
             // A lethal hit interrupts by death, but cannot be used to steer an ongoing slash.
@@ -384,7 +456,7 @@ namespace BlockNight
         {
             player = player, direction = direction, queuedDirection = queuedDirection, phaseIndex = phaseIndex, shieldArmed=shieldArmed, cell = cell, target = target, moving = moving, dashing = dashing, travel = travel,
             upgradeWaveActive=upgradeWaveActive, upgradeWaveOrigin=upgradeWaveOrigin, upgradeWaveRadius=upgradeWaveRadius, upgradeWaveDuration=upgradeWaveDuration, upgradeWaveMaxRadius=upgradeWaveMaxRadius, upgradeWaveKills=upgradeWaveKills,
-            foes = (Foe[])foes.Clone(), shots = (Shot[])shots.Clone(), elapsed = elapsed, spawn = spawn, reward = reward,
+            foes = (Foe[])foes.Clone(), shots = (Shot[])shots.Clone(), pickups = (Pickup[])pickups.Clone(), charges = (int[])charges.Clone(), chargeCount = chargeCount, itemSpawn = itemSpawn, elapsed = elapsed, spawn = spawn, reward = reward,
             score = score, kills = kills, chain = chain, bestChain = bestChain, rng = rng
         };
 
@@ -393,6 +465,9 @@ namespace BlockNight
             player = f.player; direction = f.direction; queuedDirection = f.queuedDirection; phaseIndex = f.phaseIndex; cell = f.cell; target = f.target; moving = f.moving; dashing = f.dashing; travel = f.travel; shieldArmed=f.shieldArmed && levels[9]>0 && dashing;
             upgradeWaveActive=f.upgradeWaveActive;upgradeWaveOrigin=f.upgradeWaveOrigin;upgradeWaveRadius=f.upgradeWaveRadius;upgradeWaveDuration=f.upgradeWaveDuration;upgradeWaveMaxRadius=f.upgradeWaveMaxRadius;upgradeWaveKills=f.upgradeWaveKills;
             Array.Copy(f.foes, foes, Capacity); Array.Copy(f.shots, shots, Bullets);
+            if (f.pickups != null) Array.Copy(f.pickups, pickups, Mathf.Min(pickups.Length, f.pickups.Length));
+            if (f.charges != null) { Array.Copy(f.charges, charges, Mathf.Min(charges.Length, f.charges.Length)); chargeCount = f.chargeCount; }
+            itemSpawn = f.itemSpawn;
             elapsed = f.elapsed; spawn = f.spawn; reward = f.reward; score = f.score; kills = f.kills;
             chain = f.chain; bestChain = f.bestChain; rng = f.rng; hit = draft = false;
         }

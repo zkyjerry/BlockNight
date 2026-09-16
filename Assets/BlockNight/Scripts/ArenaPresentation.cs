@@ -23,6 +23,10 @@ namespace BlockNight
         public SpriteRenderer facingMarker;
         public LineRenderer shieldArc;
         public SpriteRenderer[] shockwaves;
+        public EnemyView[] enemyPrefabs;
+        public PickupView[] pickupPrefabs;
+        public Transform enemyRoot, pickupRoot;
+        public SpriteRenderer[] chargeMarks;
         public float cellSize = 1.375f;
         [Min(.08f)] public float enemyMoveSeconds = .18f;
 
@@ -38,6 +42,8 @@ namespace BlockNight
         bool initialized;
         Vector2[] visualFoePositions;
         bool[] visualFoeVisible;
+        EnemyView[] foeViews;
+        PickupView[] itemViews;
         static readonly int[] Counts = {64, 110, 180, 280};
         static readonly float[] Strengths = {.10f, .18f, .28f, .40f};
         static readonly float[] Corners = {.16f, .27f, .40f, .55f};
@@ -68,6 +74,7 @@ namespace BlockNight
             playerSprite.enabled = true; facingMarker.enabled = true;
             if (playerLight) playerLight.enabled = true;
             foreach (var body in bodies) if (body) body.transform.DOKill();
+            DespawnAll();
             if (visualFoeVisible != null) System.Array.Clear(visualFoeVisible, 0, visualFoeVisible.Length);
             foreach (var ring in shockwaves) { ring.DOKill(); ring.transform.DOKill(); ring.enabled = false; }
             kick = feedbackTime = 0; feedbackChain = 0;
@@ -175,37 +182,10 @@ namespace BlockNight
             facingMarker.transform.position = World(m.player + facing * .36f, -.25f);
             facingMarker.transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(facing.y, facing.x) * Mathf.Rad2Deg - 90);
             facingMarker.color = m.dashing ? Color.white : new Color(.25f, 1, .89f);
-            for (int i = 0; i < bodies.Length; i++)
-            {
-                var f = m.foes[i];
-                bodies[i].enabled = f.active; warnings[i].enabled = f.active && !f.pending; aims[i].enabled = false;
-                if (!f.active)
-                {
-                    if (visualFoeVisible != null && i < visualFoeVisible.Length) visualFoeVisible[i] = false;
-                    continue;
-                }
-                MoveFoe(i, f.pos, m, snapEnemyMotion);
-                bodies[i].sprite = shapes[f.type];
-                bodies[i].transform.localScale = Vector3.one * (f.type == 3 ? .49f : .56f);
-                bodies[i].transform.rotation = Quaternion.Euler(0, 0, f.pending ? 35 : 0);
-                Color c = colors[f.type]; bool forming = f.age < m.RulesFor(f.type).spawnWarning;
-                bodies[i].color = f.pending ? new Color(.65f, .9f, 1, .5f) : forming ? new Color(c.r, c.g, c.b, .18f) : c * 1.7f;
-                var rules=m.RulesFor(f.type);
-                bool committed=f.attackWindup||f.moveWindup;
-                Vector2Int target=f.attackWindup?f.attackTarget:f.moveTarget;
-                bool targetValid=committed&&CombatModel.InBounds(target);
-                float warningProgress=1-Mathf.Clamp01((f.attackWindup?f.timer:f.hopTimer)/Mathf.Max(.001f,f.attackWindup?rules.attackWarning:rules.moveWarning));
-                float growth=Mathf.Lerp(.2f,1,warningProgress);
-                warnings[i].sprite=forming?shapes[f.type]:shapes[0];
-                warnings[i].transform.position=targetValid?World(CombatModel.Center(target),0):new Vector3(bodies[i].transform.position.x,bodies[i].transform.position.y,0);
-                warnings[i].transform.localScale=Vector3.one*(forming?1.15f:targetValid?cellSize*.88f*growth:.7f);
-                warnings[i].color=!forming&&targetValid?new Color(1,.035f,.055f,.32f):new Color(c.r,c.g,c.b,forming?.45f:.08f);
-                if(!forming&&!f.pending&&targetValid){
-                    var l=aims[i];l.enabled=true;l.startColor=l.endColor=new Color(1,.035f,.055f,.95f);
-                    Vector3 p=World(CombatModel.Center(target),-.05f);float half=cellSize*.45f*growth;
-                    l.positionCount=5;l.SetPosition(0,p+new Vector3(-half,-half));l.SetPosition(1,p+new Vector3(-half,half));l.SetPosition(2,p+new Vector3(half,half));l.SetPosition(3,p+new Vector3(half,-half));l.SetPosition(4,p+new Vector3(-half,-half));
-                }
-            }
+            PaintCharges(m);
+            if (UsesPrefabs()) RenderPrefabFoes(m, snapEnemyMotion);
+            else RenderPooledFoes(m, snapEnemyMotion);
+            RenderPickups(m);
             for (int i = 0; i < bullets.Length; i++)
             {
                 var s = m.shots[i]; bullets[i].enabled = s.active;
@@ -215,15 +195,166 @@ namespace BlockNight
             if(shieldArc){shieldArc.enabled=m.dashing&&m.shieldArmed;if(shieldArc.enabled){shieldArc.loop=true;shieldArc.positionCount=48;for(int j=0;j<48;j++){float angle=2*Mathf.PI*j/48f;shieldArc.SetPosition(j,World(m.player+new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*.6f,-.35f));}}}
         }
 
-        void MoveFoe(int index, Vector2 logicPosition, CombatModel model, bool snap)
+        bool UsesPrefabs() => enemyPrefabs != null && enemyPrefabs.Length > 0 && enemyPrefabs[0];
+        public Transform FoeTransform(int i)
         {
-            if (visualFoePositions == null || visualFoePositions.Length != bodies.Length)
+            if (foeViews != null && i < foeViews.Length && foeViews[i] && foeViews[i].body) return foeViews[i].body.transform;
+            return bodies[i].transform;
+        }
+        public LineRenderer FoeAim(int i)
+        {
+            if (foeViews != null && i < foeViews.Length && foeViews[i] && foeViews[i].aim) return foeViews[i].aim;
+            return aims[i];
+        }
+
+        void PaintCharges(CombatModel m)
+        {
+            if (chargeMarks == null) return;
+            for (int i = 0; i < chargeMarks.Length; i++)
             {
-                visualFoePositions = new Vector2[bodies.Length];
-                visualFoeVisible = new bool[bodies.Length];
+                var mark = chargeMarks[i];
+                if (!mark) continue;
+                bool on = i < m.chargeCount;
+                mark.enabled = on && playerSprite.enabled;
+                if (!on) continue;
+                bool rewind = m.charges[i] == (int)PickupKind.时间回溯;
+                mark.color = rewind ? new Color(.72f, .32f, 1, 1) * 1.6f : new Color(.12f, 1, .82f, 1) * 1.6f;
+                float angle = (90 - i * 40) * Mathf.Deg2Rad;
+                mark.transform.localPosition = new Vector3(Mathf.Cos(angle) * 1.15f, Mathf.Sin(angle) * 1.15f, -.05f);
+            }
+        }
+
+        void RenderPooledFoes(CombatModel m, bool snapEnemyMotion)
+        {
+            for (int i = 0; i < bodies.Length; i++)
+            {
+                var f = m.foes[i];
+                bodies[i].enabled = f.active; warnings[i].enabled = f.active && !f.pending; aims[i].enabled = false;
+                if (!f.active)
+                {
+                    if (visualFoeVisible != null && i < visualFoeVisible.Length) visualFoeVisible[i] = false;
+                    continue;
+                }
+                PaintFoe(bodies[i], warnings[i], aims[i], f, m, snapEnemyMotion, i);
+            }
+        }
+
+        void RenderPrefabFoes(CombatModel m, bool snapEnemyMotion)
+        {
+            if (bodies != null) foreach (var body in bodies) if (body) body.enabled = false;
+            if (warnings != null) foreach (var w in warnings) if (w) w.enabled = false;
+            if (aims != null) foreach (var a in aims) if (a) a.enabled = false;
+            if (foeViews == null || foeViews.Length != CombatModel.Capacity) foeViews = new EnemyView[CombatModel.Capacity];
+            var parent = enemyRoot ? enemyRoot : transform;
+            for (int i = 0; i < CombatModel.Capacity; i++)
+            {
+                var f = m.foes[i];
+                if (!f.active)
+                {
+                    DespawnFoe(i);
+                    if (visualFoeVisible != null && i < visualFoeVisible.Length) visualFoeVisible[i] = false;
+                    continue;
+                }
+                int type = Mathf.Clamp(f.type, 0, enemyPrefabs.Length - 1);
+                if (!foeViews[i] || foeViews[i].type != type)
+                {
+                    DespawnFoe(i);
+                    foeViews[i] = Object.Instantiate(enemyPrefabs[type], parent);
+                    foeViews[i].type = type;
+                }
+                PaintFoe(foeViews[i].body, foeViews[i].warning, foeViews[i].aim, f, m, snapEnemyMotion, i);
+            }
+        }
+
+        void RenderPickups(CombatModel m)
+        {
+            if (pickupPrefabs == null || pickupPrefabs.Length == 0) return;
+            if (itemViews == null || itemViews.Length != CombatModel.PickupCapacity) itemViews = new PickupView[CombatModel.PickupCapacity];
+            var parent = pickupRoot ? pickupRoot : transform;
+            for (int i = 0; i < CombatModel.PickupCapacity; i++)
+            {
+                var p = m.pickups[i];
+                if (!p.active)
+                {
+                    if (itemViews[i]) { Kill(itemViews[i].gameObject); itemViews[i] = null; }
+                    continue;
+                }
+                int kind = Mathf.Clamp((int)p.kind, 0, pickupPrefabs.Length - 1);
+                if (!itemViews[i] || itemViews[i].kind != p.kind)
+                {
+                    if (itemViews[i]) { Kill(itemViews[i].gameObject); itemViews[i] = null; }
+                    itemViews[i] = Object.Instantiate(pickupPrefabs[kind], parent);
+                    itemViews[i].kind = p.kind;
+                }
+                var view = itemViews[i];
+                view.transform.position = World(CombatModel.Center(p.cell), -.18f);
+                if (view.body) view.body.enabled = true;
+            }
+        }
+
+        void PaintFoe(SpriteRenderer body, SpriteRenderer warning, LineRenderer aim, Foe f, CombatModel m, bool snap, int index)
+        {
+            body.enabled = true;
+            if (warning) warning.enabled = !f.pending;
+            if (aim) aim.enabled = false;
+            MoveFoe(body, index, f.pos, m, snap);
+            if (shapes != null && f.type < shapes.Length) body.sprite = shapes[f.type];
+            body.transform.localScale = Vector3.one * (f.type == 3 ? .49f : .56f);
+            body.transform.rotation = Quaternion.Euler(0, 0, f.pending ? 35 : 0);
+            Color c = colors[Mathf.Clamp(f.type, 0, colors.Length - 1)]; bool forming = f.age < m.RulesFor(f.type).spawnWarning;
+            body.color = f.pending ? new Color(.65f, .9f, 1, .5f) : forming ? new Color(c.r, c.g, c.b, .18f) : c * 1.7f;
+            var rules = m.RulesFor(f.type);
+            bool committed = f.attackWindup || f.moveWindup;
+            Vector2Int target = f.attackWindup ? f.attackTarget : f.moveTarget;
+            bool targetValid = committed && CombatModel.InBounds(target);
+            float warningProgress = 1 - Mathf.Clamp01((f.attackWindup ? f.timer : f.hopTimer) / Mathf.Max(.001f, f.attackWindup ? rules.attackWarning : rules.moveWarning));
+            float growth = Mathf.Lerp(.2f, 1, warningProgress);
+            if (warning)
+            {
+                warning.sprite = forming ? (shapes != null && f.type < shapes.Length ? shapes[f.type] : warning.sprite) : shapes[0];
+                warning.transform.position = targetValid ? World(CombatModel.Center(target), 0) : new Vector3(body.transform.position.x, body.transform.position.y, 0);
+                warning.transform.localScale = Vector3.one * (forming ? 1.15f : targetValid ? cellSize * .88f * growth : .7f);
+                warning.color = !forming && targetValid ? new Color(1, .035f, .055f, .32f) : new Color(c.r, c.g, c.b, forming ? .45f : .08f);
+            }
+            if (aim && !forming && !f.pending && targetValid)
+            {
+                aim.enabled = true; aim.startColor = aim.endColor = new Color(1, .035f, .055f, .95f);
+                Vector3 p = World(CombatModel.Center(target), -.05f); float half = cellSize * .45f * growth;
+                aim.positionCount = 5; aim.SetPosition(0, p + new Vector3(-half, -half)); aim.SetPosition(1, p + new Vector3(-half, half)); aim.SetPosition(2, p + new Vector3(half, half)); aim.SetPosition(3, p + new Vector3(half, -half)); aim.SetPosition(4, p + new Vector3(-half, -half));
+            }
+        }
+
+        void Kill(GameObject go)
+        {
+            if (!go) return;
+            if (Application.isPlaying) Destroy(go); else DestroyImmediate(go);
+        }
+
+        void DespawnFoe(int i)
+        {
+            if (foeViews == null || i >= foeViews.Length || !foeViews[i]) return;
+            if (foeViews[i].body) foeViews[i].body.transform.DOKill();
+            Kill(foeViews[i].gameObject);
+            foeViews[i] = null;
+        }
+
+        void DespawnAll()
+        {
+            if (foeViews != null) for (int i = 0; i < foeViews.Length; i++) DespawnFoe(i);
+            if (itemViews != null)
+                for (int i = 0; i < itemViews.Length; i++)
+                    if (itemViews[i]) { Kill(itemViews[i].gameObject); itemViews[i] = null; }
+        }
+
+        void MoveFoe(SpriteRenderer body, int index, Vector2 logicPosition, CombatModel model, bool snap)
+        {
+            int size = CombatModel.Capacity;
+            if (visualFoePositions == null || visualFoePositions.Length != size)
+            {
+                visualFoePositions = new Vector2[size];
+                visualFoeVisible = new bool[size];
             }
 
-            var body = bodies[index];
             var target = World(logicPosition);
             if (!visualFoeVisible[index] || snap)
             {
@@ -256,6 +387,6 @@ namespace BlockNight
             vignette.intensity.value = Mathf.Lerp(vignette.intensity.value, targetIntensity, Mathf.Clamp01(dt * 18));
         }
 
-        void OnDestroy() { cameraTween?.Kill(); foreach (var body in bodies) if (body) body.transform.DOKill(); if (shakeCamera) shakeCamera.localPosition = cameraRest; }
+        void OnDestroy() { cameraTween?.Kill(); DespawnAll(); foreach (var body in bodies) if (body) body.transform.DOKill(); if (shakeCamera) shakeCamera.localPosition = cameraRest; }
     }
 }

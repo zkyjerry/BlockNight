@@ -38,12 +38,12 @@ Material:
     m_Ints: []
     m_Floats:
     - _Density: 0.005
-    - _Duration: 0.43993765
+    - _Duration: 0
     - _GradiantLength: 2
     - _IsInvert: 1
     - _SiliceCount: 6.15
     - _Size: 0.17
     m_Colors:
-    - _GetScreenSize: {r: 2172, g: 1300, b: 0, a: 0}
-    - _MainColor: {r: 0.16260235, g: 0.5471698, b: 0.48412594, a: 0}
+    - _GetScreenSize: {r: 765, g: 1618, b: 0, a: 0}
+    - _MainColor: {r: 0.30750266, g: 0.2966358, b: 0.6226415, a: 0}
   m_BuildTextureStacks: []

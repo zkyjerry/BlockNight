@@ -28,7 +28,7 @@ namespace BlockNight.Editor
             d.arena.Render(d.model); d.arena.TimeEffect(false,false,false,.05f); d.hud.Render(d,true); Canvas.ForceUpdateCanvases();
         }
         [MenuItem("Block Night/QA/Slow Fixture")]
-        public static void Slow() { Combat(); var d = UnityEngine.Object.FindObjectOfType<GameDirector>(); d.model.Slow(); d.model.foes[0].pending = d.model.foes[1].pending = true; d.arena.Render(d.model); d.arena.TimeEffect(true,false,false,1); d.hud.Render(d,true); }
+        public static void Slow() { Combat(); var d = UnityEngine.Object.FindObjectOfType<GameDirector>(); d.model.GrantCharge(PickupKind.时间暂停); d.model.Slow(); d.model.foes[0].pending = d.model.foes[1].pending = true; d.arena.Render(d.model); d.arena.TimeEffect(true,false,false,1); d.hud.Render(d,true); }
         [MenuItem("Block Night/QA/Rewind Fixture")]
         public static void Rewind() { Combat(); var d = UnityEngine.Object.FindObjectOfType<GameDirector>(); d.mode = Mode.Rewinding; d.arena.TimeEffect(false,true,false,1); d.hud.Render(d,true); }
         [MenuItem("Block Night/QA/Draft Fixture")]
